@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "assets": "node scripts/build-app-icons.mjs && capacitor-assets generate --android",
     "cap:sync": "vite build && cap sync android",
     "cap:open": "cap open android"
   },
