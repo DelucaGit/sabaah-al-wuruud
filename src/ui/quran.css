@@ -1,0 +1,55 @@
+/* Qur'an tab (memorization card). Shared pieces come from kit.css. */
+
+.quran-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quran-count { line-height: 1; }
+
+.quran-count__num {
+  font-family: 'Amiri', Georgia, serif;
+  font-weight: 400;
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--color-primary);
+}
+
+.quran-bar {
+  height: 6px;
+  border-radius: 6px;
+  background: var(--color-primary-soft);
+  overflow: hidden;
+}
+
+.quran-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  background: var(--color-primary);
+  transition: width .35s ease;
+}
+
+.quran-btn {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.quran-card--done { text-align: center; }
+
+.quran-card--done .quran-mashallah {
+  text-align: center;
+  font-size: 1.6rem;
+  line-height: 1.8;
+  color: var(--color-primary);
+}
+
+.quran-done {
+  font-weight: 700;
+  color: var(--color-text);
+}
