@@ -1,0 +1,76 @@
+/*
+ * Design tokens. Light palette is the default; dark palette applies under
+ * [data-theme="dark"], and under [data-theme="system"] (or no attribute)
+ * when the OS prefers dark. Set by applyTheme() in src/ui/theme.js.
+ *
+ * Contrast (WCAG 2.1, checked against bg and surface):
+ *   light: text 14.5:1, muted 6.0:1, primary 5.2:1, done 4.9:1,
+ *          on-primary on primary 5.6:1, primary on primary-soft 4.5:1
+ *   dark:  text 13.4:1, muted 7.4:1, primary 7.3:1, done 8.8:1,
+ *          on-primary on primary 8.3:1, primary on primary-soft 5.8:1
+ * --color-lavender (#B57EDC) is 3.0:1 on white: decorative use only
+ * (borders, icons, progress fills), never for body text.
+ */
+:root {
+  color-scheme: light;
+
+  --color-lavender: #B57EDC;
+  --color-primary: #8350B3;
+  --color-on-primary: #FFFFFF;
+  --color-primary-soft: #EEE3F8;
+  --color-bg: #FAF6FD;
+  --color-surface: #FFFFFF;
+  --color-text: #2B2033;
+  --color-muted: #675A73;
+  --color-done: #2F7A5A;
+  --color-border: #E2D5EE;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-primary: #C9A2EC;
+  --color-on-primary: #1D1525;
+  --color-primary-soft: #3E2D52;
+  --color-bg: #1D1525;
+  --color-surface: #2A2034;
+  --color-text: #F3ECF8;
+  --color-muted: #BBAECB;
+  --color-done: #86D3AE;
+  --color-border: #44365A;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"],
+  :root:not([data-theme]) {
+    color-scheme: dark;
+
+    --color-primary: #C9A2EC;
+    --color-on-primary: #1D1525;
+    --color-primary-soft: #3E2D52;
+    --color-bg: #1D1525;
+    --color-surface: #2A2034;
+    --color-text: #F3ECF8;
+    --color-muted: #BBAECB;
+    --color-done: #86D3AE;
+    --color-border: #44365A;
+  }
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
