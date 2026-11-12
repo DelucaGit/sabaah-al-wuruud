@@ -1,34 +1,37 @@
 // Istikhara screen: the du'a straight away, with "هَذَا الْأَمْرَ" (where she
-// names her matter) highlighted. Built with DOM nodes/textContent only.
+// names her matter) highlighted. The source opens in a bottom sheet.
 import './istikhara.css';
 import dua from '../data/adhkar/istikhara.json';
 import { navigate } from '../router.js';
+import { esc, icon, openSheet } from './kit.js';
 
-export function render(rootEl) {
-  const page = el('div', 'istikhara');
+export function render(viewEl) {
+  const page = document.createElement('div');
+  page.className = 'screen istikhara';
+  page.innerHTML = `
+    <div class="topbar">
+      <button type="button" class="icon-btn istikhara-back" aria-label="Back">${icon('back')}</button>
+      <button type="button" class="chip istikhara-source">Source</button>
+    </div>
+    <header class="istikhara-head">
+      <h1 class="screen-title">Istikhara</h1>
+      <p class="muted small">Asking Allah to choose what is best</p>
+    </header>
+    <article class="card">
+      <p class="istikhara-text font-adhkar" dir="rtl" lang="ar"></p>
+    </article>
+    <p class="istikhara-hint">Name your matter at the highlighted words.</p>`;
 
-  const header = el('header', 'istikhara__header');
-  const back = el('button', 'istikhara__back', '‹ Back');
-  back.type = 'button';
-  back.addEventListener('click', () => navigate('/'));
-  header.append(back, el('h1', 'istikhara__title', 'Istikhara'));
+  page.querySelector('.istikhara-text').append(...highlightNodes(dua.arabic, dua.highlight));
+  page.querySelector('.istikhara-back').addEventListener('click', () => navigate('/adhkar'));
+  page.querySelector('.istikhara-source').addEventListener('click', () => {
+    openSheet({
+      title: 'Source',
+      bodyHtml: `<p class="sheet__arabic" lang="ar">${esc(dua.source)}</p>`,
+    });
+  });
 
-  const card = el('article', 'istikhara__card');
-  const text = el('p', 'istikhara__text font-adhkar');
-  text.dir = 'rtl';
-  text.lang = 'ar';
-  text.append(...highlightNodes(dua.arabic, dua.highlight));
-
-  const source = el('details', 'istikhara__source');
-  source.append(el('summary', '', 'Source'));
-  const src = el('p', 'istikhara__source-text', dua.source);
-  src.dir = 'rtl';
-  src.lang = 'ar';
-  source.append(src);
-
-  card.append(text, source);
-  page.append(header, card);
-  rootEl.appendChild(page);
+  viewEl.appendChild(page);
 }
 
 // Split text into text nodes and <mark> elements around every occurrence of phrase.
@@ -36,15 +39,13 @@ export function highlightNodes(text, phrase) {
   if (!phrase) return [document.createTextNode(text)];
   const nodes = [];
   text.split(phrase).forEach((part, i) => {
-    if (i > 0) nodes.push(el('mark', 'istikhara__mark', phrase));
+    if (i > 0) {
+      const mark = document.createElement('mark');
+      mark.className = 'istikhara-mark';
+      mark.textContent = phrase;
+      nodes.push(mark);
+    }
     if (part) nodes.push(document.createTextNode(part));
   });
   return nodes;
-}
-
-function el(tag, className, text) {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (text != null) node.textContent = text;
-  return node;
 }
