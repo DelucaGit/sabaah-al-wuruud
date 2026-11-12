@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { orderAdhkar, togglePin, hasCounter, increment, reset } from './adhkar.js';
+import { orderAdhkar, togglePin, hasCounter, increment, reset, readTarget, isRead, sectionProgress } from './adhkar.js';
 
 // Fixtures in the same shape as src/data/adhkar/*.json: { id, arabic, repeat, virtue?, source? }
 const morning = [
@@ -102,5 +102,35 @@ describe('increment', () => {
 describe('reset', () => {
   it('returns 0', () => {
     expect(reset()).toBe(0);
+  });
+});
+
+describe('read progress', () => {
+  const list = [
+    { id: 'a', repeat: 1 },
+    { id: 'b', repeat: 3 },
+    { id: 'c', repeat: 100 },
+  ];
+
+  it('needs 100 taps for the counter adhkar and 1 for the rest', () => {
+    expect(list.map(readTarget)).toEqual([1, 1, 100]);
+  });
+
+  it('treats a dhikr as read once its count reaches the target', () => {
+    expect(isRead(list[1], {})).toBe(false);
+    expect(isRead(list[1], { b: 1 })).toBe(true);
+    expect(isRead(list[2], { c: 99 })).toBe(false);
+    expect(isRead(list[2], { c: 100 })).toBe(true);
+    expect(isRead(list[0], undefined)).toBe(false);
+  });
+
+  it('summarises a section', () => {
+    expect(sectionProgress(list, {})).toEqual({ read: 0, total: 3, fraction: 0, all: false });
+    expect(sectionProgress(list, { a: 1, c: 40 })).toEqual({ read: 1, total: 3, fraction: 1 / 3, all: false });
+    expect(sectionProgress(list, { a: 1, b: 1, c: 100 })).toEqual({ read: 3, total: 3, fraction: 1, all: true });
+  });
+
+  it('is never complete for an empty section', () => {
+    expect(sectionProgress([], {})).toEqual({ read: 0, total: 0, fraction: 0, all: false });
   });
 });

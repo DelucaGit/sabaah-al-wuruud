@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prototype": "vite --open /prototype.html",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",

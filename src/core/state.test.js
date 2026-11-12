@@ -6,7 +6,10 @@ describe('DEFAULT_STATE', () => {
     expect(DEFAULT_STATE).toEqual({
       version: 1,
       settings: {
+        name: 'Aisha',
         theme: 'system',
+        accent: 'lavender',
+        arabicScale: 1,
         location: { name: 'Cairo', lat: 30.0444, lng: 31.2357 },
         method: 'Egyptian',
         reminders: {
@@ -84,7 +87,10 @@ describe('migrate', () => {
 
   it('keeps valid non-default settings', () => {
     const settings = {
+      name: 'Aisha N.',
       theme: 'light',
+      accent: 'wisteria',
+      arabicScale: 1.25,
       location: { name: 'Alexandria', lat: 31.2, lng: 29.9 },
       method: 'MuslimWorldLeague',
       reminders: {
@@ -176,5 +182,27 @@ describe('update', () => {
     });
     expect(after.progress.memorizedUpTo).toBe(604);
     expect(after.settings.theme).toBe('system');
+  });
+});
+
+describe('personal settings', () => {
+  it('falls back to the defaults for invalid name, accent and Arabic size', () => {
+    const { settings } = migrate({ settings: { name: '   ', accent: 'green', arabicScale: 9 } });
+    expect(settings.name).toBe('Aisha');
+    expect(settings.accent).toBe('lavender');
+    expect(settings.arabicScale).toBe(1);
+  });
+
+  it('trims the name and keeps it short', () => {
+    expect(migrate({ settings: { name: '  Aisha  ' } }).settings.name).toBe('Aisha');
+    expect(migrate({ settings: { name: 'x'.repeat(50) } }).settings.name).toHaveLength(20);
+  });
+
+  it('keeps settings saved before these fields existed', () => {
+    const old = { settings: { theme: 'dark', location: { name: 'Giza', lat: 30, lng: 31.2 } } };
+    const { settings } = migrate(old);
+    expect(settings.theme).toBe('dark');
+    expect(settings.location.name).toBe('Giza');
+    expect(settings.accent).toBe('lavender');
   });
 });

@@ -1,0 +1,29 @@
+<!doctype html>
+<!--
+  PROTOTYPE — throwaway. Not part of the production build (vite build only
+  bundles index.html). Run with: npm run prototype
+
+  Question: what should a calmer, more comfortable, more personal lavender
+  design of the whole app look like?
+  Three variants of the app, switchable via ?variant=A|B|C and the floating
+  bar at the bottom. State lives in memory only; reload = fresh start.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Prototype · Sabaah Al-Wuruud</title>
+  </head>
+  <body>
+    <div id="stage">
+      <div class="phone">
+        <div id="view"></div>
+        <nav id="tabbar" hidden></nav>
+        <div id="sheet"></div>
+        <div id="toast" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+    <div id="switcher"></div>
+    <script type="module" src="/src/prototype/proto.js"></script>
+  </body>
+</html>
