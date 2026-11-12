@@ -1,0 +1,318 @@
+/*
+ * Shared UI kit styles. Loaded once through src/ui/kit.js (imported by the
+ * router), so every screen gets these classes for free. Colours come from
+ * the tokens in src/styles/theme.css; do not hard-code palette values.
+ *
+ * Shared classes:
+ *   .screen            page wrapper: padding + vertical stack (gap 18px)
+ *   .screen-title      Amiri page heading (h1)
+ *   .section-label     small uppercase muted label above a group
+ *   .muted  .small     helper text colour / size
+ *   .card              white rounded surface with the card shadow
+ *   .btn               pill button base (needs a variant)
+ *     .btn-primary     filled, primary colour
+ *     .btn-ghost       soft tinted background, primary text
+ *     .btn-wide        full width modifier
+ *   .chip              small pill button/tag (Virtue, Source, ...)
+ *   .chips             centred wrapping row of chips
+ *   .topbar            sub-screen header row (back button, title, action)
+ *     .topbar__title   centred title inside .topbar
+ *   .icon-btn          48px round icon button (soft background)
+ *     .icon-btn--ghost transparent, muted icon
+ *   .segmented         pill group of <button aria-pressed="true|false">
+ *   .switch            <button role="switch" aria-checked="true|false">
+ *   .icon              the <svg> from icon(); sized by parent font-size
+ *   .ring              the <svg> from ring(); .ring__track / .ring__fill
+ *   .ring-wrap         positions a child <b> in the middle of a ring
+ *   .tabbar / .tab     bottom navigation (owned by the router)
+ *   .sheet-backdrop / .sheet / .sheet__head / .sheet__title / .sheet__body
+ *   .sheet__arabic     Arabic body text inside a sheet
+ *   .toast-host / .toast / .toast__action
+ */
+
+#app { position: relative; }
+
+/* ---------- page ---------- */
+.screen {
+  padding: 22px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: kit-fade .35s ease;
+}
+@keyframes kit-fade { from { opacity: 0; transform: translateY(6px); } }
+
+.screen-title {
+  font-family: 'Amiri', Georgia, serif;
+  font-weight: 400;
+  font-size: 2.1rem;
+  line-height: 1.15;
+  color: var(--color-text);
+}
+
+.section-label {
+  font-size: .72rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 700;
+}
+
+.muted { color: var(--color-muted); }
+.small { font-size: .88rem; }
+
+/* ---------- surfaces and buttons ---------- */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  box-shadow: var(--shadow-card);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 0 22px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  transition: transform .12s ease;
+}
+.btn:active { transform: scale(.98); }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn-primary { background: var(--color-primary); color: var(--color-on-primary); }
+.btn-ghost { background: var(--color-primary-soft); color: var(--color-primary); }
+.btn-wide { width: 100%; }
+
+.chips { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: .9rem;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+}
+.topbar__title {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.icon-btn {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  font-size: 1.3rem;
+}
+.icon-btn--ghost { background: none; color: var(--color-muted); }
+
+/* ---------- form controls ---------- */
+.segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  background: var(--color-primary-softer);
+  border-radius: var(--radius-pill);
+  padding: 4px;
+}
+.segmented button {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  color: var(--color-muted);
+  font-weight: 700;
+  font-size: .9rem;
+  text-align: center;
+}
+.segmented button[aria-pressed="true"] {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-card);
+}
+
+.switch {
+  position: relative;
+  width: 52px;
+  height: 32px;
+  flex: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+  transition: background .2s;
+}
+/* Extends the tap target to 48px without changing the look. */
+.switch::before { content: ''; position: absolute; inset: -8px 0; }
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+  transition: transform .2s;
+}
+.switch[aria-checked="true"] { background: var(--color-primary); }
+.switch[aria-checked="true"]::after { transform: translateX(20px); }
+
+/* ---------- icon and ring ---------- */
+.icon { display: block; width: 1em; height: 1em; flex: none; }
+
+.ring { display: block; flex: none; }
+.ring__track { fill: none; stroke: var(--color-primary-soft); }
+.ring__fill {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-linecap: round;
+  transition: stroke-dashoffset .3s ease;
+}
+.ring-wrap { position: relative; display: inline-grid; place-items: center; }
+.ring-wrap > b {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* ---------- tab bar (built by src/router.js) ---------- */
+.tabbar {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
+  background: var(--color-surface);
+  box-shadow: 0 -8px 24px -18px rgba(84, 52, 122, .4);
+}
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 52px;
+  color: var(--color-muted);
+  font-size: .72rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.tab__icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 30px;
+  border-radius: var(--radius-pill);
+  font-size: 1.4rem;
+  transition: background .2s;
+}
+.tab[aria-current="page"] { color: var(--color-primary); }
+.tab[aria-current="page"] .tab__icon { background: var(--color-primary-soft); }
+
+/* ---------- bottom sheet ---------- */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(30, 18, 45, .38);
+  animation: kit-fadein .2s ease;
+}
+@keyframes kit-fadein { from { opacity: 0; } }
+.sheet {
+  width: 100%;
+  max-width: 560px;
+  max-height: 78%;
+  overflow-y: auto;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 30px 30px 0 0;
+  padding: 10px 22px calc(28px + env(safe-area-inset-bottom));
+  animation: kit-up .28s cubic-bezier(.2, .8, .2, 1);
+}
+@keyframes kit-up { from { transform: translateY(40%); opacity: .4; } }
+.sheet::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--color-border);
+  margin: 0 auto 6px;
+}
+.sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.sheet__title { font-size: 1.05rem; color: var(--color-primary); }
+.sheet__close { margin-right: -12px; }
+.sheet__arabic {
+  font-family: 'Amiri', 'Noto Naskh Arabic', serif;
+  direction: rtl;
+  text-align: right;
+  font-size: calc(1.15rem * var(--arabic-scale, 1));
+  line-height: 1.9;
+}
+
+/* ---------- toast ---------- */
+.toast-host {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+#app.has-tabbar .toast-host { bottom: calc(86px + env(safe-area-inset-bottom)); }
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 48px;
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-size: .92rem;
+  box-shadow: var(--shadow-card);
+  animation: kit-up .25s ease;
+}
+.toast__action {
+  min-height: 40px;
+  padding: 0 4px;
+  color: var(--color-lavender);
+  font-weight: 700;
+}
