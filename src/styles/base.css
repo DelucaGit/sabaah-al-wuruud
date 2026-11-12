@@ -1,0 +1,10 @@
+@import './theme.css';
+@import './fonts.css';
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { min-height: 100vh; -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+img, svg { display: block; max-width: 100%; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+h1, h2, h3, p { margin: 0; }

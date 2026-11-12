@@ -1,0 +1,58 @@
+// Pure logic for the adhkar lists: starred (pinned) ordering and the 100× counter.
+// Dhikr shape (see the adhkar data): { id, arabic, repeat, virtue?, source? }.
+
+/** The only repeat count that gets a tap counter. */
+export const COUNTER_REPEAT = 100;
+
+/**
+ * Split a section into pinned and unpinned adhkar.
+ * Both groups keep the original book order; pinned IDs not in the list are ignored.
+ * @param {Array<{id: string}>} list adhkar in book order
+ * @param {string[]} pinnedIds
+ * @returns {{ pinned: Array, rest: Array }}
+ */
+export function orderAdhkar(list, pinnedIds) {
+  const pinnedSet = new Set(pinnedIds ?? []);
+  const pinned = [];
+  const rest = [];
+  for (const dhikr of list) {
+    (pinnedSet.has(dhikr.id) ? pinned : rest).push(dhikr);
+  }
+  return { pinned, rest };
+}
+
+/**
+ * Pin the id if it is not pinned, otherwise unpin it. Never mutates the input.
+ * @param {string[]} pinnedIds
+ * @param {string} id
+ * @returns {string[]}
+ */
+export function togglePin(pinnedIds, id) {
+  const current = pinnedIds ?? [];
+  return current.includes(id)
+    ? current.filter((pinnedId) => pinnedId !== id)
+    : [...current, id];
+}
+
+/** True only for adhkar recited exactly 100 times. */
+export function hasCounter(dhikr) {
+  return dhikr?.repeat === COUNTER_REPEAT;
+}
+
+/**
+ * One tap on the counter. Never goes past the target; `reachedTarget` is true
+ * only on the tap that lands exactly on the target.
+ * @param {number} value
+ * @param {number} target
+ * @returns {{ value: number, reachedTarget: boolean }}
+ */
+export function increment(value, target) {
+  if (value >= target) return { value: target, reachedTarget: false };
+  const next = value + 1;
+  return { value: next, reachedTarget: next === target };
+}
+
+/** The counter's starting value. */
+export function reset() {
+  return 0;
+}
