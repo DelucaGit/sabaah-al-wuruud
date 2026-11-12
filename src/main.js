@@ -1,9 +1,10 @@
 import './styles/base.css';
-import { applyTheme } from './ui/theme.js';
+import { applyAppearance } from './ui/theme.js';
 import { startReminderSync } from './app/reminder-sync.js';
 import { start } from './router.js';
 import { store } from './adapters/storage.js';
 
-applyTheme(store.get().settings.theme);
+applyAppearance(store.get().settings);
+store.subscribe((state) => applyAppearance(state.settings));
 startReminderSync();
 start(document.getElementById('app'));

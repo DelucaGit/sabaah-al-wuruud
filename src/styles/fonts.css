@@ -45,7 +45,7 @@ body,
   font-family: 'Amiri', 'Noto Naskh Arabic', serif;
   direction: rtl;
   text-align: right;
-  font-size: 1.5rem;
+  font-size: calc(1.5rem * var(--arabic-scale, 1));
   line-height: 2.1;
 }
 
@@ -53,6 +53,6 @@ body,
   font-family: 'KFGQPC Uthmanic Hafs', 'Amiri', serif;
   direction: rtl;
   text-align: right;
-  font-size: 1.6rem;
+  font-size: calc(1.6rem * var(--arabic-scale, 1));
   line-height: 2.2;
 }
