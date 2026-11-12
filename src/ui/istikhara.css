@@ -1,80 +1,29 @@
-/* Istikhara screen. Mobile-first; uses the tokens from src/styles/theme.css. */
-.istikhara {
-  max-width: 560px;
-  margin: 0 auto;
-  padding: var(--space-4) var(--space-4) var(--space-7);
+/* Istikhara screen. Layout comes from the shared kit (.screen, .topbar, .card,
+   .chip); only the du'a text, its highlight and the hint are styled here. */
+.istikhara-head {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 4px;
 }
 
-.istikhara__header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.istikhara__back {
-  min-height: 44px;
-  padding: 0 var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface);
-  color: var(--color-primary);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.istikhara__title {
-  margin: 0;
-  font-size: 1.5rem;
-  color: var(--color-text);
-}
-
-.istikhara__card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
-}
-
-.istikhara__text {
+.istikhara-text {
   margin: 0;
   color: var(--color-text);
 }
 
-/* Lavender highlight: soft lavender fill plus a lavender underline; text keeps
-   the body colour so contrast holds in both themes. */
-.istikhara__mark {
+/* Where she names her matter: soft lavender fill, primary-coloured text. */
+.istikhara-mark {
   background: var(--color-primary-soft);
-  color: inherit;
-  border-radius: var(--radius-sm);
-  padding: 0 var(--space-1);
-  box-shadow: inset 0 -3px 0 var(--color-lavender);
+  color: var(--color-primary);
+  padding: 0 6px;
+  border-radius: 8px;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
 
-.istikhara__source {
-  margin-top: var(--space-4);
-  color: var(--color-muted);
-}
-
-.istikhara__source summary {
-  cursor: pointer;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  list-style: none;
-}
-
-.istikhara__source summary::-webkit-details-marker { display: none; }
-.istikhara__source summary::before { content: '▸'; margin-right: var(--space-2); }
-.istikhara__source[open] summary::before { content: '▾'; }
-
-.istikhara__source-text {
+.istikhara-hint {
   margin: 0;
-  font-family: 'Amiri', 'Noto Naskh Arabic', serif;
-  text-align: right;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: .82rem;
 }
