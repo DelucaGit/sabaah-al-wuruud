@@ -56,3 +56,28 @@ export function increment(value, target) {
 export function reset() {
   return 0;
 }
+
+/**
+ * How many taps mark a dhikr as read today: 100 for the counter adhkar, 1 for
+ * everything else (those she counts on her fingers and ticks off once).
+ */
+export function readTarget(dhikr) {
+  return hasCounter(dhikr) ? COUNTER_REPEAT : 1;
+}
+
+/** True when today's count for the dhikr has reached its read target. */
+export function isRead(dhikr, counters) {
+  return (counters?.[dhikr.id] ?? 0) >= readTarget(dhikr);
+}
+
+/**
+ * How much of a section has been read today.
+ * @param {Array<{id: string, repeat: number}>} list
+ * @param {Record<string, number>} counters today's counts by dhikr id
+ * @returns {{ read: number, total: number, fraction: number, all: boolean }}
+ */
+export function sectionProgress(list, counters) {
+  const total = list.length;
+  const read = list.filter((dhikr) => isRead(dhikr, counters)).length;
+  return { read, total, fraction: total ? read / total : 0, all: total > 0 && read === total };
+}

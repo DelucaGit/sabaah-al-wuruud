@@ -4,6 +4,10 @@ export const STATE_VERSION = 1;
 export const MAX_PAGE = 604;
 export const SECTIONS = ['morning', 'evening', 'sleep'];
 export const THEMES = ['system', 'light', 'dark'];
+export const ACCENTS = ['lavender', 'lilac', 'wisteria'];
+// Arabic text size multiplier chosen in Settings.
+export const ARABIC_SCALE = { min: 0.85, max: 1.45, default: 1 };
+const MAX_NAME_LENGTH = 20;
 export const PRAYERS = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
 // Names of adhan's CalculationMethod factories.
 export const METHODS = [
@@ -16,7 +20,10 @@ const MAX_OFFSET_MIN = 12 * 60;
 export const DEFAULT_STATE = deepFreeze({
   version: STATE_VERSION,
   settings: {
+    name: 'Aisha',
     theme: 'system',
+    accent: 'lavender',
+    arabicScale: ARABIC_SCALE.default,
     location: { name: 'Cairo', lat: 30.0444, lng: 31.2357 },
     method: 'Egyptian',
     reminders: {
@@ -51,7 +58,10 @@ export function migrate(raw) {
   return {
     version: STATE_VERSION,
     settings: {
+      name: nonEmptyString(settings.name, d.settings.name).trim().slice(0, MAX_NAME_LENGTH),
       theme: oneOf(settings.theme, THEMES, d.settings.theme),
+      accent: oneOf(settings.accent, ACCENTS, d.settings.accent),
+      arabicScale: numberIn(settings.arabicScale, ARABIC_SCALE.min, ARABIC_SCALE.max, d.settings.arabicScale),
       location: {
         name: nonEmptyString(location.name, d.settings.location.name),
         lat: numberIn(location.lat, -90, 90, d.settings.location.lat),
