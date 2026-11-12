@@ -1,3 +1,9 @@
+// Capacitor's plugins compile with a Java 21 toolchain. This lets Gradle fetch
+// a matching JDK itself when none is installed (see docs/android.md).
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
 include ':app'
 include ':capacitor-cordova-android-plugins'
 project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins/')
