@@ -10,7 +10,7 @@ import {
   orderAdhkar, togglePin, increment, reset, hasCounter, readTarget, sectionProgress, COUNTER_REPEAT,
 } from '../core/adhkar.js';
 import * as haptics from '../adapters/haptics.js';
-import { navigate } from '../router.js';
+import { navigate, goBack } from '../router.js';
 import { esc, icon, ring, openSheet } from './kit.js';
 import { SECTIONS } from './sections.js';
 
@@ -169,10 +169,10 @@ export function render(viewEl, { section } = {}) {
     const dhikr = card ? byId.get(card.dataset.id) : null;
     const act = control?.dataset.act;
 
-    if (act === 'back' || act === 'finish') return navigate(HOME);
+    if (act === 'back' || act === 'finish') return goBack(HOME);
     if (act === 'done-anyway') {
       store.set((s) => { s.daily = markDone(s.daily, section, new Date()); });
-      return navigate(HOME);
+      return goBack(HOME);
     }
     if (!dhikr) return undefined;
     if (act === 'star') return toggleStar(dhikr, control);

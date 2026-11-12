@@ -10,3 +10,9 @@ keystore.properties
 
 # Claude Code worktrees
 .claude/
+
+# Playwright MCP snapshots
+.playwright-mcp/
+
+# Kotlin compiler cache
+android/.kotlin/
