@@ -1,0 +1,10 @@
+{
+  "appId": "io.github.delucagit.sabaahalwuruud",
+  "appName": "Sabaah Al-Wuruud",
+  "webDir": "dist",
+  "plugins": {
+    "LocalNotifications": {
+      "iconColor": "#B57EDC"
+    }
+  }
+}
