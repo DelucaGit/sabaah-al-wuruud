@@ -26,6 +26,12 @@ cd android
 ./gradlew assembleDebug   # → android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
+Notes for the command-line build:
+
+- Gradle 8.14 cannot run on Java 25, which newer Android Studio versions bundle. Point `JAVA_HOME` at a JDK 17 to 24 before running `gradlew`.
+- The plugins compile with a Java 21 toolchain. Gradle downloads it automatically through the foojay resolver plugin in `android/settings.gradle`.
+- `ANDROID_HOME` must point at the SDK (`%LOCALAPPDATA%\Android\Sdk`).
+
 ## Permissions
 
 `AndroidManifest.xml` declares `POST_NOTIFICATIONS` (Android 13+ asks the user), `USE_EXACT_ALARM` / `SCHEDULE_EXACT_ALARM` (reminders at exact times), `RECEIVE_BOOT_COMPLETED` (reminders survive a reboot) and `VIBRATE` (counter haptics).

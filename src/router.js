@@ -61,6 +61,22 @@ export function navigate(path) {
   else location.hash = target;
 }
 
+/** Hash of the screen shown before the current one, '' at app start. */
+let previousHash = '';
+let currentHash = '';
+
+/**
+ * Leaves a full-screen screen (reader, Istikhara) for `path`. Pops the history
+ * entry when we came from `path`, otherwise replaces the current one, so the
+ * system back button never returns to the screen that was just closed.
+ * @param {string} path  With or without the leading '#'.
+ */
+export function goBack(path) {
+  const target = path.startsWith('#') ? path : `#${path}`;
+  if (previousHash === target) history.back();
+  else location.replace(target);
+}
+
 /**
  * Builds the app frame inside `rootEl` (`<main class="app-view">` plus
  * `<nav class="tabbar">`) and renders the screen for the current hash, now
@@ -83,6 +99,10 @@ export function start(rootEl) {
     if (typeof cleanup === 'function') cleanup();
     cleanup = null;
     closeSheet();
+    if (location.hash !== currentHash) {
+      previousHash = currentHash;
+      currentHash = location.hash;
+    }
     const route = resolve(location.hash);
     tabbar.hidden = route.tab === null;
     rootEl.classList.toggle('has-tabbar', route.tab !== null);

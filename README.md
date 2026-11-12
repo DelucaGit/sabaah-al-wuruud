@@ -7,6 +7,15 @@ A personal, ad-free, fully offline Adhkar app for Android — built as a small w
 - Quran memorization tracker (Madinah mushaf, per page) with a random verse + At-Tafsir al-Muyassar from the last memorized page
 - Local reminders based on Cairo prayer times (Egyptian General Authority of Survey method)
 
+Four tabs in a bottom bar, all reachable with one thumb:
+
+- **Today**: greeting, date and Hijri date, a prayer dial with the next prayer and countdown, the five prayer times, and the verse with its tafsir
+- **Adhkar**: "Your day" timeline of prayers and the Morning, Evening and Before Sleep sections in day order, the current one highlighted; Istikhara under "Anytime"
+- **Qur'an**: registers a memorized page (count, progress bar, "I memorized page X", undo)
+- **Me**: name, accent shade, theme, Arabic text size, reminders, memorized page, location, about
+
+Opening a section shows the reader: one dhikr per full-height card that snaps into place, a "read" action, progress per section (marked done when everything is read) and a tap counter on the 100x adhkar.
+
 The full spec and the build plan live in the GitHub issues (see the issue labelled `spec`).
 
 ## Development

@@ -2,7 +2,7 @@
 // names her matter) highlighted. The source opens in a bottom sheet.
 import './istikhara.css';
 import dua from '../data/adhkar/istikhara.json';
-import { navigate } from '../router.js';
+import { goBack } from '../router.js';
 import { esc, icon, openSheet } from './kit.js';
 
 export function render(viewEl) {
@@ -23,7 +23,7 @@ export function render(viewEl) {
     <p class="istikhara-hint">Name your matter at the highlighted words.</p>`;
 
   page.querySelector('.istikhara-text').append(...highlightNodes(dua.arabic, dua.highlight));
-  page.querySelector('.istikhara-back').addEventListener('click', () => navigate('/adhkar'));
+  page.querySelector('.istikhara-back').addEventListener('click', () => goBack('/adhkar'));
   page.querySelector('.istikhara-source').addEventListener('click', () => {
     openSheet({
       title: 'Source',
