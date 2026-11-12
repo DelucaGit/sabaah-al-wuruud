@@ -1,7 +1,9 @@
-// Applies the colour theme by setting data-theme on the root element.
-// The palettes themselves live in src/styles/theme.css.
+// Applies the look chosen in Settings to the root element: the colour theme
+// (data-theme), the accent shade (data-accent) and the Arabic text size
+// (--arabic-scale). The palettes themselves live in src/styles/theme.css.
 
 export const THEME_MODES = ['system', 'light', 'dark'];
+export const ACCENTS = ['lavender', 'lilac', 'wisteria'];
 
 /**
  * @param {'system'|'light'|'dark'} mode  Unknown values fall back to 'system'.
@@ -12,4 +14,17 @@ export function applyTheme(mode, root = globalThis.document?.documentElement) {
   const applied = THEME_MODES.includes(mode) ? mode : 'system';
   if (root) root.dataset.theme = applied;
   return applied;
+}
+
+/**
+ * Applies theme, accent and Arabic text size from the settings object.
+ * @param {{ theme?: string, accent?: string, arabicScale?: number }} settings
+ * @param {{ dataset: Record<string, string>, style?: { setProperty: Function } }} [root]
+ */
+export function applyAppearance(settings, root = globalThis.document?.documentElement) {
+  applyTheme(settings?.theme, root);
+  if (!root) return;
+  root.dataset.accent = ACCENTS.includes(settings?.accent) ? settings.accent : 'lavender';
+  const scale = Number(settings?.arabicScale);
+  root.style?.setProperty('--arabic-scale', String(Number.isFinite(scale) && scale > 0 ? scale : 1));
 }

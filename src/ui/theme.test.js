@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyTheme } from './theme.js';
+import { applyTheme, applyAppearance } from './theme.js';
 
 const fakeRoot = () => ({ dataset: {} });
 
@@ -26,5 +26,34 @@ describe('applyTheme', () => {
 
   it('does not throw without a document', () => {
     expect(applyTheme('dark')).toBe('dark');
+  });
+});
+
+describe('applyAppearance', () => {
+  const styledRoot = () => {
+    const props = {};
+    return { dataset: {}, props, style: { setProperty: (k, v) => { props[k] = v; } } };
+  };
+
+  it('sets theme, accent and Arabic scale', () => {
+    const root = styledRoot();
+    applyAppearance({ theme: 'dark', accent: 'wisteria', arabicScale: 1.2 }, root);
+    expect(root.dataset.theme).toBe('dark');
+    expect(root.dataset.accent).toBe('wisteria');
+    expect(root.props['--arabic-scale']).toBe('1.2');
+  });
+
+  it('falls back to system, lavender and scale 1 for bad values', () => {
+    const root = styledRoot();
+    applyAppearance({ theme: 'x', accent: 'green', arabicScale: 'big' }, root);
+    expect(root.dataset.theme).toBe('system');
+    expect(root.dataset.accent).toBe('lavender');
+    expect(root.props['--arabic-scale']).toBe('1');
+    applyAppearance(undefined, root);
+    expect(root.dataset.accent).toBe('lavender');
+  });
+
+  it('does not throw without a document', () => {
+    expect(() => applyAppearance({ theme: 'dark' })).not.toThrow();
   });
 });

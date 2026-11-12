@@ -1,33 +1,35 @@
 /*
- * Design tokens. Light palette is the default; dark palette applies under
- * [data-theme="dark"], and under [data-theme="system"] (or no attribute)
- * when the OS prefers dark. Set by applyTheme() in src/ui/theme.js.
+ * Design tokens. Lavender is the default accent; Settings can switch to two
+ * neighbouring shades via [data-accent] (set by applyAppearance() in
+ * src/ui/theme.js). The light palette is the default; the dark palette applies
+ * under [data-theme="dark"], and under [data-theme="system"] (or no attribute)
+ * when the OS prefers dark.
  *
- * Contrast (WCAG 2.1, checked against bg and surface):
- *   light: text 14.5:1, muted 6.0:1, primary 5.2:1, done 4.9:1,
- *          on-primary on primary 5.6:1, primary on primary-soft 4.5:1
- *   dark:  text 13.4:1, muted 7.4:1, primary 7.3:1, done 8.8:1,
- *          on-primary on primary 8.3:1, primary on primary-soft 5.8:1
- * --color-lavender (#B57EDC) is 3.0:1 on white: decorative use only
- * (borders, icons, progress fills), never for body text.
+ * --color-lavender is decorative only (borders, icons, progress tracks): it
+ * does not have enough contrast for body text. Use --color-primary for text.
  */
 :root {
   color-scheme: light;
 
-  --color-lavender: #B57EDC;
-  --color-primary: #8350B3;
+  --color-primary: #7C4DAE;
+  --color-lavender: #B58FE0;
   --color-on-primary: #FFFFFF;
-  --color-primary-soft: #EEE3F8;
-  --color-bg: #FAF6FD;
+  --color-primary-soft: #EFE6F9;
+  --color-primary-softer: #F6F0FC;
+  --color-bg: #FBF8FE;
   --color-surface: #FFFFFF;
   --color-text: #2B2033;
-  --color-muted: #675A73;
+  --color-muted: #6F6280;
   --color-done: #2F7A5A;
-  --color-border: #E2D5EE;
+  --color-border: #EADFF4;
+  --gradient-primary: linear-gradient(155deg, #A682DA 0%, #7446AD 100%);
+  --shadow-card: 0 1px 2px rgba(84, 52, 122, .05), 0 10px 30px -12px rgba(84, 52, 122, .18);
 
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 22px;
+  --arabic-scale: 1; /* Arabic text size multiplier, from Settings */
+
+  --radius-sm: 12px;
+  --radius-md: 22px;
+  --radius-lg: 26px;
   --radius-pill: 999px;
 
   --space-1: 4px;
@@ -39,18 +41,62 @@
   --space-7: 48px;
 }
 
+:root[data-accent="lilac"] {
+  --color-primary: #97489B;
+  --color-lavender: #D596D4;
+  --color-primary-soft: #F8E6F6;
+  --color-primary-softer: #FCF2FB;
+  --color-bg: #FEF8FD;
+  --color-border: #F1DDEF;
+  --gradient-primary: linear-gradient(155deg, #C583C6 0%, #8E4093 100%);
+}
+
+:root[data-accent="wisteria"] {
+  --color-primary: #5F51B5;
+  --color-lavender: #A096E8;
+  --color-primary-soft: #E8E5FA;
+  --color-primary-softer: #F2F0FD;
+  --color-bg: #F9F8FE;
+  --color-border: #DFDCF4;
+  --gradient-primary: linear-gradient(155deg, #8F85DD 0%, #5546A8 100%);
+}
+
+/* Dark palettes. Keep the three [data-theme="dark"] blocks and the three
+   system blocks in the media query below identical. */
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --color-primary: #C9A2EC;
+  --color-primary: #CDA9F0;
+  --color-lavender: #9A74C9;
   --color-on-primary: #1D1525;
-  --color-primary-soft: #3E2D52;
-  --color-bg: #1D1525;
-  --color-surface: #2A2034;
-  --color-text: #F3ECF8;
-  --color-muted: #BBAECB;
+  --color-primary-soft: #3A2B4E;
+  --color-primary-softer: #2E2340;
+  --color-bg: #1A1423;
+  --color-surface: #261D33;
+  --color-text: #F4EDF9;
+  --color-muted: #B9ACC9;
   --color-done: #86D3AE;
-  --color-border: #44365A;
+  --color-border: #3B2E4D;
+  --gradient-primary: linear-gradient(155deg, #7C55B0 0%, #4E2F7C 100%);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px -12px rgba(0, 0, 0, .5);
+}
+
+:root[data-theme="dark"][data-accent="lilac"] {
+  --color-primary: #E7B0E6;
+  --color-lavender: #B272B2;
+  --color-primary-soft: #4A2B4B;
+  --color-primary-softer: #38223A;
+  --color-border: #4B2F4C;
+  --gradient-primary: linear-gradient(155deg, #9A559C 0%, #672C6B 100%);
+}
+
+:root[data-theme="dark"][data-accent="wisteria"] {
+  --color-primary: #BDB4F5;
+  --color-lavender: #7F74CF;
+  --color-primary-soft: #2F2B52;
+  --color-primary-softer: #26233F;
+  --color-border: #35315A;
+  --gradient-primary: linear-gradient(155deg, #6558B8 0%, #3D3285 100%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -58,15 +104,39 @@
   :root:not([data-theme]) {
     color-scheme: dark;
 
-    --color-primary: #C9A2EC;
+    --color-primary: #CDA9F0;
+    --color-lavender: #9A74C9;
     --color-on-primary: #1D1525;
-    --color-primary-soft: #3E2D52;
-    --color-bg: #1D1525;
-    --color-surface: #2A2034;
-    --color-text: #F3ECF8;
-    --color-muted: #BBAECB;
+    --color-primary-soft: #3A2B4E;
+    --color-primary-softer: #2E2340;
+    --color-bg: #1A1423;
+    --color-surface: #261D33;
+    --color-text: #F4EDF9;
+    --color-muted: #B9ACC9;
     --color-done: #86D3AE;
-    --color-border: #44365A;
+    --color-border: #3B2E4D;
+    --gradient-primary: linear-gradient(155deg, #7C55B0 0%, #4E2F7C 100%);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px -12px rgba(0, 0, 0, .5);
+  }
+
+  :root[data-theme="system"][data-accent="lilac"],
+  :root:not([data-theme])[data-accent="lilac"] {
+    --color-primary: #E7B0E6;
+    --color-lavender: #B272B2;
+    --color-primary-soft: #4A2B4B;
+    --color-primary-softer: #38223A;
+    --color-border: #4B2F4C;
+    --gradient-primary: linear-gradient(155deg, #9A559C 0%, #672C6B 100%);
+  }
+
+  :root[data-theme="system"][data-accent="wisteria"],
+  :root:not([data-theme])[data-accent="wisteria"] {
+    --color-primary: #BDB4F5;
+    --color-lavender: #7F74CF;
+    --color-primary-soft: #2F2B52;
+    --color-primary-softer: #26233F;
+    --color-border: #35315A;
+    --gradient-primary: linear-gradient(155deg, #6558B8 0%, #3D3285 100%);
   }
 }
 
