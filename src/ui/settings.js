@@ -5,7 +5,7 @@
 // inputs never lose focus. Appearance is applied by main.js on store changes.
 import './settings.css';
 import { store } from '../adapters/storage.js';
-import { ARABIC_SCALE, DEFAULT_STATE, GOAL_REMINDERS, PRAYERS, THEMES } from '../core/state.js';
+import { ARABIC_SCALE, DEFAULT_STATE, ENCOURAGEMENT_PER_DAY, GOAL_REMINDERS, PRAYERS, THEMES } from '../core/state.js';
 import { setMemorizedUpTo, TOTAL_PAGES } from '../core/memorization.js';
 import { esc, icon } from './kit.js';
 import { version } from '../../package.json';
@@ -91,6 +91,12 @@ export function render(rootEl) {
 
     $('#rem-lastThird-on').setAttribute('aria-checked', String(settings.reminders.lastThird.enabled === true));
 
+    const enc = settings.reminders.encouragement;
+    $('#rem-encouragement-on').setAttribute('aria-checked', String(enc.enabled));
+    $('#rem-encouragement').classList.toggle('settings-row--off', !enc.enabled);
+    $('#rem-encouragement').querySelectorAll('input, .settings-stepper button').forEach((c) => { c.disabled = !enc.enabled; });
+    setValue('#rem-encouragement-count', enc.perDay);
+
     setValue('#mem-page', progress.memorizedUpTo);
     setValue('#loc-name', settings.location.name);
     setValue('#loc-lat', settings.location.lat);
@@ -133,6 +139,21 @@ export function render(rootEl) {
   }
   $('#rem-lastThird-on').addEventListener('click', () => {
     save((s) => { s.settings.reminders.lastThird.enabled = !s.settings.reminders.lastThird.enabled; });
+  });
+  $('#rem-encouragement-on').addEventListener('click', () => {
+    save((s) => { s.settings.reminders.encouragement.enabled = !s.settings.reminders.encouragement.enabled; });
+  });
+  const setPerDay = (n) => {
+    const perDay = clamp(Math.round(n), ENCOURAGEMENT_PER_DAY.min, ENCOURAGEMENT_PER_DAY.max);
+    save((s) => { s.settings.reminders.encouragement.perDay = perDay; });
+  };
+  $('#rem-encouragement-count').addEventListener('change', (e) => {
+    const n = parseNumber(e.target.value);
+    if (n === null) return reject(`Enter a number from ${ENCOURAGEMENT_PER_DAY.min} to ${ENCOURAGEMENT_PER_DAY.max}`);
+    setPerDay(n);
+  });
+  $$('#rem-encouragement [data-step]').forEach((b) => {
+    b.addEventListener('click', () => setPerDay(store.get().settings.reminders.encouragement.perDay + Number(b.dataset.step)));
   });
   for (const [key] of PRAYER_REMINDERS) {
     const setOffset = (n) => {
@@ -338,6 +359,18 @@ function template() {
       <div class="settings-row" id="rem-lastThird">
         <span class="settings-grow">Last third of the night<small>A gentle nudge for tahajjud and dua &middot; off by default</small></span>
         ${switchHtml('lastThird', 'Last third of the night')}
+      </div>
+      <div class="settings-row" id="rem-encouragement">
+        <span class="settings-grow">Encouragement<small>Messages per day</small></span>
+        ${stepperHtml({
+          inputId: 'rem-encouragement-count',
+          label: 'Encouragement messages per day',
+          step: 1,
+          max: ENCOURAGEMENT_PER_DAY.max,
+          less: 'One message less',
+          more: 'One message more',
+        })}
+        ${switchHtml('encouragement', 'Encouragement')}
       </div>
     </section>
 
