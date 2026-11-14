@@ -1,10 +1,19 @@
 // Qur'an tab: memorization progress (pages of the 604-page Madinah mushaf)
-// and one button to register the next memorized page, with Undo.
+// and one button to register the next memorized page, with Undo. Below it,
+// the "Today's goals" card (quran-goals.js).
 
 import './quran.css';
 import { store } from '../adapters/storage.js';
 import { TOTAL_PAGES, markNextPage, nextPageLabel, setMemorizedUpTo } from '../core/memorization.js';
 import { icon, toast } from './kit.js';
+import { goalsHtml, wireGoals } from './quran-goals.js';
+
+/**
+ * HOOK for #107: runs right after Hifdh is ticked for today (not on untick).
+ * #107 will offer "mark page X as memorized?" here (markNextPage /
+ * nextPageLabel from core/memorization.js). Intentionally does nothing yet.
+ */
+function afterHifdhTicked() {}
 
 function cardHtml(progress) {
   // setMemorizedUpTo clamps whatever is stored to a valid 0-604 integer.
@@ -41,12 +50,19 @@ function cardHtml(progress) {
  * @returns {() => void} Cleanup: stops listening to the store.
  */
 export function render(view) {
-  view.innerHTML = '<div class="screen"><h1 class="screen-title">Qur\'an</h1><div class="quran-slot"></div></div>';
+  view.innerHTML = '<div class="screen"><h1 class="screen-title">Qur\'an</h1><div class="quran-slot"></div><div class="quran-goals-slot"></div></div>';
   const slot = view.querySelector('.quran-slot');
+  const goalsSlot = view.querySelector('.quran-goals-slot');
 
   const paint = (state) => {
     slot.innerHTML = cardHtml(state.progress);
+    goalsSlot.innerHTML = goalsHtml(state, new Date());
   };
+
+  wireGoals(goalsSlot, { onHifdhTicked: afterHifdhTicked });
+  // Coming back to the app on a new day shows fresh, unticked goals.
+  const onVisible = () => { if (!document.hidden) paint(store.get()); };
+  document.addEventListener('visibilitychange', onVisible);
 
   slot.addEventListener('click', (event) => {
     if (!event.target.closest('[data-quran-next]')) return;
@@ -67,5 +83,9 @@ export function render(view) {
   });
 
   paint(store.get());
-  return store.subscribe(paint);
+  const unsubscribe = store.subscribe(paint);
+  return () => {
+    unsubscribe();
+    document.removeEventListener('visibilitychange', onVisible);
+  };
 }
