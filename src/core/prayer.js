@@ -86,3 +86,33 @@ export function highlightedSection(now, times) {
   if (t >= times.asr.getTime() && t < times.isha.getTime()) return 'evening';
   return null;
 }
+
+/**
+ * The night that follows the day (at `location`) containing `date`: from that
+ * day's Maghrib to the next day's Fajr (same Egyptian method), with its
+ * midpoint and the start of its last third.
+ * @returns {{maghrib: Date, fajr: Date, lengthMs: number, middle: Date, lastThirdStart: Date}}
+ */
+export function getNightTimes(date, location) {
+  const day = dayAtLocation(date, location);
+  const maghrib = timesForDay(day, location).maghrib;
+  const fajr = timesForDay(day, location, 1).fajr;
+  const lengthMs = fajr.getTime() - maghrib.getTime();
+  return {
+    maghrib,
+    fajr,
+    lengthMs,
+    middle: new Date(maghrib.getTime() + lengthMs / 2),
+    lastThirdStart: new Date(fajr.getTime() - lengthMs / 3),
+  };
+}
+
+/** Middle of the night (Date) after the day containing `date`. */
+export function getMiddleOfNight(date, location) {
+  return getNightTimes(date, location).middle;
+}
+
+/** Start of the last third of the night (Date) after the day containing `date`. */
+export function getLastThirdOfNight(date, location) {
+  return getNightTimes(date, location).lastThirdStart;
+}
