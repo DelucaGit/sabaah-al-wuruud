@@ -7,7 +7,7 @@ import './adhkar.css';
 import { store } from '../adapters/storage.js';
 import { ensureToday, markDone, isDone, setCounter, getCounter } from '../core/daily.js';
 import {
-  orderAdhkar, togglePin, increment, reset, hasCounter, readTarget, sectionProgress, COUNTER_REPEAT,
+  orderAdhkar, togglePin, increment, reset, hasCounter, readTarget, sectionProgress, headingBreaks, COUNTER_REPEAT,
 } from '../core/adhkar.js';
 import * as haptics from '../adapters/haptics.js';
 import { navigate, goBack } from '../router.js';
@@ -37,6 +37,7 @@ export function render(viewEl, { section } = {}) {
   // to the front the next time the section opens, not under her thumb.
   const { pinned, rest } = orderAdhkar(meta.adhkar, store.get().pins[section]);
   const list = [...pinned, ...rest];
+  const headings = headingBreaks(list);
   const byId = new Map(list.map((d) => [d.id, d]));
   let advanceTimer = null;
 
@@ -89,6 +90,7 @@ export function render(viewEl, { section } = {}) {
             </span>
           </div>
           <div class="reader-text">
+            ${headings[i] ? `<h2 class="reader-heading font-adhkar" lang="ar" dir="rtl">${esc(headings[i])}</h2>` : ''}
             <p class="font-adhkar${dhikr.arabic.length < 110 ? ' reader-text--short' : ''}" lang="ar" dir="rtl">${esc(dhikr.arabic)}</p>
           </div>
           <div class="reader-foot">
