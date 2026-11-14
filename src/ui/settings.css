@@ -92,8 +92,16 @@
   text-align: center;
 }
 
+/* Goal reminders: header, mode choice, then prayer+offset or time. */
+.settings-split--center { align-items: center; }
+.settings-goal-fields { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: space-between; }
+.settings-goal-fields[hidden] { display: none; }
+.settings-field--select { text-align: left; width: auto; }
+
 /* A reminder that is switched off keeps its switch usable. */
 .settings-row--off .settings-stepper,
+.settings-row--off .segmented,
+.settings-row--off .settings-goal-fields,
 .settings-row--off .settings-field { opacity: .4; pointer-events: none; }
 
 /* ---------- location reset ---------- */
