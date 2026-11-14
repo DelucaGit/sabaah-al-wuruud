@@ -73,6 +73,14 @@ export function markHifdhDone(state, now) {
   return withGoals(state, now, (g) => ({ ...g, daily: { ...g.daily, done: { ...g.daily.done, [HIFDH]: true } } }));
 }
 
+/** Unticks Hifdh for today. */
+export function unmarkHifdhDone(state, now) {
+  return withGoals(state, now, (g) => {
+    const { [HIFDH]: _gone, ...done } = g.daily.done;
+    return { ...g, daily: { ...g.daily, done } };
+  });
+}
+
 export function isHifdhDone(state, now) {
   return todayGoals(state, now).daily.done[HIFDH] === true;
 }
@@ -108,6 +116,20 @@ export function markMurajaaDone(state, now) {
     const lastRevised = { ...g.lastRevised };
     pages.forEach((p) => { lastRevised[p] = key; });
     return { ...g, lastRevised, daily: { ...g.daily, done: { ...g.daily.done, [MURAJAA]: true }, murajaaPages: pages } };
+  });
+}
+
+/**
+ * Unticks Murajaa for today and forgets today's revision of the recorded
+ * pages (they count as not revised, so they are suggested again first).
+ */
+export function unmarkMurajaaDone(state, now) {
+  const key = dayKey(now);
+  return withGoals(state, now, (g) => {
+    const { [MURAJAA]: _gone, ...done } = g.daily.done;
+    const lastRevised = { ...g.lastRevised };
+    g.daily.murajaaPages.forEach((p) => { if (lastRevised[p] === key) delete lastRevised[p]; });
+    return { ...g, lastRevised, daily: { ...g.daily, done, murajaaPages: [] } };
   });
 }
 

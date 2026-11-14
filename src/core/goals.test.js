@@ -3,7 +3,7 @@ import { defaultState, update, migrate } from './state.js';
 import {
   setHifdhTarget, setMurajaaTarget, addChecklistItem, editChecklistItem, removeChecklistItem,
   setChecklistDone, markHifdhDone, isHifdhDone, isMurajaaDone, isChecklistDone,
-  suggestMurajaa, markMurajaaDone, lastRevisedOn,
+  suggestMurajaa, markMurajaaDone, lastRevisedOn, unmarkHifdhDone, unmarkMurajaaDone,
 } from './goals.js';
 
 const d1 = new Date(2026, 10, 14, 9);
@@ -111,5 +111,20 @@ describe('murajaa suggestion', () => {
   });
   it('respects target changes', () => {
     expect(suggestMurajaa(setMurajaaTarget(memorized(8), 2, d1), d1)).toEqual([1, 2]);
+  });
+});
+
+describe('untick', () => {
+  it('unticks hifdh', () => {
+    expect(isHifdhDone(unmarkHifdhDone(markHifdhDone(defaultState(), d1), d1), d1)).toBe(false);
+  });
+  it('unticks murajaa and suggests the same pages again', () => {
+    let s = update(memorized(3), (x) => { x.goals.lastRevised = { 1: '2026-11-10', 2: '2026-11-01', 3: '2026-11-05' }; });
+    s = setMurajaaTarget(s, 2, d1);
+    s = unmarkMurajaaDone(markMurajaaDone(s, d1), d1);
+    expect(isMurajaaDone(s, d1)).toBe(false);
+    expect(lastRevisedOn(s, 2)).toBeNull();
+    expect(lastRevisedOn(s, 1)).toBe('2026-11-10');
+    expect(suggestMurajaa(s, d1)).toEqual([2, 3]);
   });
 });
