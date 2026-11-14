@@ -1,0 +1,113 @@
+/*
+ * The faceless figure on the Today scene (see figure.js). A flat lavender
+ * silhouette seen from behind, drawn in a 48 x 52 box whose bottom edge is the
+ * ground (.scene__figure in scene.css).
+ *
+ * Two poses are stacked: .figure__walker (standing, used for the walk-in) and
+ * .figure__seat (seated). Without any class, and with .figure--seated, only
+ * the seated pose shows: that is also what prefers-reduced-motion gets, since
+ * base.css switches every animation off.
+ *   .figure--entering  one-time walk-in + sit (figure.js removes it afterwards)
+ *   .figure--seated    seated, with the slow idle motion
+ * Timings match WALK_MS and SIT_MS in src/core/figure.js.
+ */
+
+/* A little deeper than the front hill of each scene, so she stands out from
+   the hill she sits on and from the sky behind her. Isha is the exception: a
+   darker shape disappears in the night sky, so there she is moonlit (lighter
+   than the hill). */
+.scene { --figure: #8D6FCB; --figure-veil: #7F60C0; --figure-gaze: 9deg; }
+.scene[data-scene="fajr"] { --figure: #1C1340; --figure-veil: #150D34; --figure-gaze: 7deg; }
+.scene[data-scene="duha"] { --figure: #8C63BB; --figure-veil: #7D54AE; --figure-gaze: 5deg; }
+.scene[data-scene="dhuhr"] { --figure: #8D6FCB; --figure-veil: #7F60C0; --figure-gaze: 11deg; }
+.scene[data-scene="asr"] { --figure: #7953AB; --figure-veil: #6B459E; --figure-gaze: 9deg; }
+.scene[data-scene="maghrib"] { --figure: #2A1450; --figure-veil: #210E44; --figure-gaze: 5deg; }
+.scene[data-scene="isha"] { --figure: #4A3C90; --figure-veil: #3E317F; --figure-gaze: 11deg; }
+
+.figure {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible; /* she walks in from outside the box; the card clips her */
+}
+.figure__robe,
+.figure__foot { fill: var(--figure); transition: fill var(--scene-blend) ease-in-out; }
+.figure__veil { fill: var(--figure-veil); transition: fill var(--scene-blend) ease-in-out; }
+
+.figure__walker,
+.figure__stand,
+.figure__seat,
+.figure__breath { transform-origin: 24px 52px; }
+.figure__stand { opacity: 0; }
+.figure__skirt { transform-origin: 24px 24px; }
+.figure__foot--b { transform-origin: 24px 52px; transform: scaleX(-1); }
+.figure__tail { transform-origin: 17.5px 41.5px; }
+.figure__hem { transform-origin: 12px 52px; }
+.figure__head {
+  transform-origin: 24px 32px;
+  transform: rotate(var(--figure-gaze)); /* head turned up towards the sun or the moon */
+  transition: fill var(--scene-blend) ease-in-out, transform var(--scene-blend) ease-in-out;
+}
+
+/* ---------- entrance: walk in (3.4 s), stand a beat, sit (1.3 s) ---------- */
+.figure--entering .figure__walker { animation: figure-walk-in 3.4s cubic-bezier(.3, .2, .55, 1) both; }
+.figure--entering .figure__step { animation: figure-step .68s ease-in-out 5 both; }
+.figure--entering .figure__skirt { animation: figure-skirt .68s ease-in-out 5 both; }
+.figure--entering .figure__foot--a { animation: figure-foot-a .68s ease-in-out 5 both; }
+.figure--entering .figure__foot--b { animation: figure-foot-b .68s ease-in-out 5 both; }
+.figure--entering .figure__stand { animation: figure-stand-down 1.1s ease-in-out 3.6s both; }
+.figure--entering .figure__seat { animation: figure-seat-in 1.1s ease-in-out 3.6s both; }
+
+@keyframes figure-walk-in {
+  from { transform: translateX(-96px); }
+  to { transform: none; }
+}
+/* One cycle is two steps: a small rise on each, with a hint of sway. */
+@keyframes figure-step {
+  0%, 50%, 100% { transform: none; }
+  25% { transform: translateY(-1.2px) rotate(1.3deg); }
+  75% { transform: translateY(-1.2px) rotate(-.5deg); }
+}
+@keyframes figure-skirt {
+  0%, 50%, 100% { transform: none; }
+  25% { transform: skewX(-3.5deg); }
+  75% { transform: skewX(3deg); }
+}
+@keyframes figure-foot-a {
+  0%, 50%, 100% { transform: none; }
+  25%, 75% { transform: translateX(7px); }
+}
+@keyframes figure-foot-b {
+  0%, 50%, 100% { transform: scaleX(-1); }
+  25%, 75% { transform: scaleX(-1) translateX(6px); }
+}
+/* Sitting down: the standing pose sinks and widens, the seated pose rises out of it. */
+@keyframes figure-stand-down {
+  0% { opacity: 1; transform: none; }
+  60% { opacity: 1; transform: scale(1.22, .74); }
+  85%, 100% { opacity: 0; transform: scale(1.3, .68); }
+}
+@keyframes figure-seat-in {
+  0%, 35% { opacity: 0; transform: scale(.62, 1.34); }
+  55% { opacity: 1; transform: scale(.8, 1.16); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* ---------- seated: breathing, and a light breeze in the scarf and hem ---------- */
+.figure--seated .figure__breath { animation: figure-breathe 5.6s ease-in-out infinite; }
+.figure--seated .figure__tail { animation: figure-breeze 6.8s ease-in-out infinite; }
+.figure--seated .figure__hem { animation: figure-hem 8.2s ease-in-out infinite; }
+
+@keyframes figure-breathe {
+  0%, 100% { transform: none; }
+  50% { transform: scale(1.006, 1.022) rotate(.5deg); }
+}
+@keyframes figure-breeze {
+  0%, 100% { transform: none; }
+  40% { transform: rotate(9deg); }
+  70% { transform: rotate(3deg); }
+}
+@keyframes figure-hem {
+  0%, 100% { transform: none; }
+  50% { transform: scale(1.1, .9); }
+}

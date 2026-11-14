@@ -10,6 +10,7 @@ import { timeLeftInWindow } from '../core/dial.js';
 import { navigate } from '../router.js';
 import { esc, icon } from './kit.js';
 import { createScene } from './scene.js';
+import { createFigure } from './figure.js';
 import {
   PRAYER_KEYS, PRAYER_LABELS, prayerLocation, formatTime, todayPrayerTimes,
 } from './prayer-view.js';
@@ -165,6 +166,7 @@ export function render(view) {
   const reflectEl = view.querySelector('.today-reflect');
   let alive = true;
   const scene = createScene(view.querySelector('.today')); // sky behind the dial
+  const figure = createFigure(scene.figureSpot); // walks in once per opening of Today
   let shownUpTo = null; // memorizedUpTo the reflection card was painted for
   let windowTimer = null; // repaints the moment the dial's window changes
 
@@ -181,6 +183,7 @@ export function render(view) {
       windowTimer = setTimeout(() => { if (alive) paintTop(store.get()); }, ms + 250);
     }
     scene.sync(prayersEl.querySelector('.today-dial'), state.settings, now);
+    figure.sync();
   }
 
   function paintReflection(state) {
@@ -224,6 +227,7 @@ export function render(view) {
     unsubscribe();
     clearInterval(timer);
     clearTimeout(windowTimer);
+    figure.destroy();
     scene.destroy();
   };
 }
