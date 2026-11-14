@@ -8,12 +8,38 @@ import { TOTAL_PAGES, markNextPage, nextPageLabel, setMemorizedUpTo } from '../c
 import { icon, toast } from './kit.js';
 import { goalsHtml, wireGoals } from './quran-goals.js';
 
+/** Registers the next page as memorized, with an Undo toast. */
+function memorizeNextPage() {
+  const before = store.get().progress?.memorizedUpTo ?? 0;
+  const after = markNextPage(store.get().progress);
+  if (after === before) return;
+  store.set((s) => {
+    s.progress.memorizedUpTo = after;
+  });
+  toast(`Page ${after} memorized`, {
+    actionLabel: 'Undo',
+    onAction: () => {
+      store.set((s) => {
+        s.progress.memorizedUpTo = before;
+      });
+    },
+  });
+}
+
 /**
- * HOOK for #107: runs right after Hifdh is ticked for today (not on untick).
- * #107 will offer "mark page X as memorized?" here (markNextPage /
- * nextPageLabel from core/memorization.js). Intentionally does nothing yet.
+ * Runs right after Hifdh is ticked for today (not on untick): offers to mark
+ * the next page as memorized. Ignoring the toast leaves everything as it is;
+ * no offer once all 604 pages are memorized.
  */
-function afterHifdhTicked() {}
+function afterHifdhTicked() {
+  const next = nextPageLabel(store.get().progress);
+  if (next === null) return;
+  toast(`Mark page ${next} as memorized?`, {
+    actionLabel: 'Mark',
+    onAction: memorizeNextPage,
+    duration: 8000,
+  });
+}
 
 function cardHtml(progress) {
   // setMemorizedUpTo clamps whatever is stored to a valid 0-604 integer.
@@ -66,20 +92,7 @@ export function render(view) {
 
   slot.addEventListener('click', (event) => {
     if (!event.target.closest('[data-quran-next]')) return;
-    const before = store.get().progress?.memorizedUpTo ?? 0;
-    const after = markNextPage(store.get().progress);
-    if (after === before) return;
-    store.set((s) => {
-      s.progress.memorizedUpTo = after;
-    });
-    toast(`Page ${after} memorized`, {
-      actionLabel: 'Undo',
-      onAction: () => {
-        store.set((s) => {
-          s.progress.memorizedUpTo = before;
-        });
-      },
-    });
+    memorizeNextPage();
   });
 
   paint(store.get());
