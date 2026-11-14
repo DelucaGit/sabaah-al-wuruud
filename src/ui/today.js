@@ -2,14 +2,17 @@
 // next prayer and a countdown, all five prayer times, and a reflection verse
 // with its tafsir from the last memorized page.
 import './today.css';
+import './prayer-dial.css';
 import { store } from '../adapters/storage.js';
 import { nextPrayer, getNightTimes } from '../core/prayer.js';
 import { pickReflectionVerse } from '../core/memorization.js';
+import { timeLeftInWindow } from '../core/dial.js';
 import { navigate } from '../router.js';
 import { esc, icon } from './kit.js';
 import {
   PRAYER_KEYS, PRAYER_LABELS, prayerLocation, formatTime, todayPrayerTimes,
 } from './prayer-view.js';
+import { dialHtml } from './prayer-dial.js';
 
 const REFRESH_MS = 30_000;
 
@@ -60,14 +63,6 @@ function dateHtml(now, settings) {
   return `<b>${esc(greg)}</b>${hijri ? `<span>${esc(hijri)}</span>` : ''}`;
 }
 
-/** "in 1 h 12 min" / "in 12 min" / "now". */
-function countdown(target, now) {
-  const minutes = Math.max(0, Math.round((target.getTime() - now.getTime()) / 60_000));
-  if (minutes === 0) return 'now';
-  const h = Math.floor(minutes / 60);
-  return h ? `in ${h} h ${minutes % 60} min` : `in ${minutes} min`;
-}
-
 /** The current next prayer, or null when it cannot be computed. */
 function findNext(settings, now) {
   try {
@@ -75,36 +70,6 @@ function findNext(settings, now) {
   } catch {
     return null;
   }
-}
-
-/** Semicircle from Fajr (left) to Isha (right) with a dot for now. */
-function dialHtml(times, next, now, settings) {
-  const start = times.fajr.getTime();
-  const end = times.isha.getTime();
-  const frac = (ms) => (end > start ? Math.min(1, Math.max(0, (ms - start) / (end - start))) : 0);
-  const n = (x) => Number(x.toFixed(2));
-  const point = (f) => [n(150 - 120 * Math.cos(Math.PI * f)), n(150 - 120 * Math.sin(Math.PI * f))];
-  const f = frac(now.getTime());
-  const [nowX, nowY] = point(f);
-  const marks = PRAYER_KEYS.map((key) => {
-    const [x, y] = point(frac(times[key].getTime()));
-    const isNext = key === next.name;
-    return `<circle class="today-dial__mark${isNext ? ' today-dial__mark--next' : ''}" cx="${x}" cy="${y}" r="${isNext ? 5.5 : 3.5}"/>`;
-  }).join('');
-  const arc = 'M30 150 A120 120 0 0 1 270 150';
-  return `<section class="card today-dial" aria-label="Next prayer">
-    <svg viewBox="0 0 300 168" aria-hidden="true">
-      <path class="today-dial__track" d="${arc}"/>
-      <path class="today-dial__fill" d="${arc}" pathLength="1" stroke-dasharray="${n(f)} 1"/>
-      ${marks}
-      <circle class="today-dial__now" cx="${nowX}" cy="${nowY}" r="11"/>
-    </svg>
-    <div class="today-dial__center">
-      <span class="section-label">Next prayer</span>
-      <strong>${PRAYER_LABELS[next.name]}</strong>
-      <span class="muted"><b>${countdown(next.time, now)}</b> · ${esc(formatTime(next.time, settings))}</span>
-    </div>
-  </section>`;
 }
 
 /** All five times in five columns, the next one highlighted. */
@@ -132,7 +97,26 @@ function nightRowsHtml(now, settings) {
   </ul>`;
 }
 
+/** The Fajr that ends the coming night, or undefined when unavailable. */
+function nextFajrOf(now, loc) {
+  try {
+    const fajr = getNightTimes(now, loc)?.fajr;
+    return fajr && !Number.isNaN(fajr.getTime()) ? fajr : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Milliseconds until the dial's current window ends, or null when unknown. */
+function msToNextWindow(settings, now) {
+  const times = todayPrayerTimes(settings, now);
+  if (!times) return null;
+  const ms = timeLeftInWindow(times, now, nextFajrOf(now, prayerLocation(settings)));
+  return Number.isFinite(ms) && ms > 0 ? ms : null;
+}
+
 function prayersHtml(settings, now) {
+  const loc = prayerLocation(settings);
   const times = todayPrayerTimes(settings, now);
   const next = times ? findNext(settings, now) : null;
   if (!times || !next) {
@@ -141,7 +125,7 @@ function prayersHtml(settings, now) {
       <a class="today-link" href="#/settings">Change location in Me ${icon('arrow')}</a>
     </section>`;
   }
-  return dialHtml(times, next, now, settings) + timesRowHtml(times, next, settings) + nightRowsHtml(now, settings);
+  return dialHtml(times, next, now, settings, { timeZone: loc.timeZone, nextFajr: nextFajrOf(now, loc) }) + timesRowHtml(times, next, settings) + nightRowsHtml(now, settings);
 }
 
 const REFLECTION_LABEL = "Today's reflection";
@@ -180,12 +164,19 @@ export function render(view) {
   const reflectEl = view.querySelector('.today-reflect');
   let alive = true;
   let shownUpTo = null; // memorizedUpTo the reflection card was painted for
+  let windowTimer = null; // repaints the moment the dial's window changes
 
   function paintTop(state) {
     const now = new Date();
     dateEl.innerHTML = dateHtml(now, state.settings);
     helloEl.innerHTML = `<span>Assalamu alaikum,</span>${esc(state.settings.name)} 🤍`;
     prayersEl.innerHTML = prayersHtml(state.settings, now);
+    clearTimeout(windowTimer);
+    const ms = msToNextWindow(state.settings, now);
+    // Capped so a very long timeout can never overflow; the 30 s tick covers the rest.
+    if (ms !== null && ms < 86_400_000) {
+      windowTimer = setTimeout(() => { if (alive) paintTop(store.get()); }, ms + 250);
+    }
   }
 
   function paintReflection(state) {
@@ -228,5 +219,6 @@ export function render(view) {
     alive = false;
     unsubscribe();
     clearInterval(timer);
+    clearTimeout(windowTimer);
   };
 }
