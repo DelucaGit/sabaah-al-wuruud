@@ -5,7 +5,7 @@
 // inputs never lose focus. Appearance is applied by main.js on store changes.
 import './settings.css';
 import { store } from '../adapters/storage.js';
-import { ARABIC_SCALE, DEFAULT_STATE, THEMES } from '../core/state.js';
+import { ARABIC_SCALE, DEFAULT_STATE, GOAL_REMINDERS, PRAYERS, THEMES } from '../core/state.js';
 import { setMemorizedUpTo, TOTAL_PAGES } from '../core/memorization.js';
 import { esc, icon } from './kit.js';
 import { version } from '../../package.json';
@@ -17,6 +17,10 @@ const OFFSET_STEP_MIN = 15;
 const SCALE_STEP = 0.05;
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const PRAYER_REMINDERS = [['morning', 'Morning', 'Fajr'], ['evening', 'Evening', 'Asr']];
+
+const GOAL_LABELS = { hifdh: 'Hifdh', murajaa: 'Murajaa', checklist: 'Checklist' };
+const GOAL_MODE_LABELS = { prayer: 'After prayer', time: 'Fixed time' };
+const PRAYER_LABELS = { fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' };
 
 export function render(rootEl) {
   const page = document.createElement('div');
@@ -70,6 +74,19 @@ export function render(rootEl) {
       row.querySelectorAll('input, .settings-stepper button').forEach((c) => { c.disabled = !r.enabled; });
       if (key === 'sleep') setValue('#rem-sleep-time', r.time);
       else setValue(`#rem-${key}-offset`, r.offsetMin);
+    }
+
+    for (const g of GOAL_REMINDERS) {
+      const r = settings.reminders[g];
+      $(`#rem-${g}-on`).setAttribute('aria-checked', String(r.enabled));
+      $(`#rem-${g}`).classList.toggle('settings-row--off', !r.enabled);
+      $(`#rem-${g}`).querySelectorAll('select, input, .settings-stepper button, .segmented button').forEach((c) => { c.disabled = !r.enabled; });
+      $$(`#rem-${g} [data-goal-mode]`).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.goalMode === r.mode)));
+      $(`#rem-${g}-after`).hidden = r.mode !== 'prayer';
+      $(`#rem-${g}-fixed`).hidden = r.mode !== 'time';
+      setValue(`#rem-${g}-prayer`, r.prayer);
+      setValue(`#rem-${g}-offset`, r.offsetMin);
+      setValue(`#rem-${g}-time`, r.time);
     }
 
     $('#rem-lastThird-on').setAttribute('aria-checked', String(settings.reminders.lastThird.enabled === true));
@@ -131,6 +148,30 @@ export function render(rootEl) {
       b.addEventListener('click', () => {
         setOffset(store.get().settings.reminders[key].offsetMin + Number(b.dataset.step));
       });
+    });
+  }
+  for (const g of GOAL_REMINDERS) {
+    const patch = (fn) => save((s) => { fn(s.settings.reminders[g]); });
+    $(`#rem-${g}-on`).addEventListener('click', () => patch((r) => { r.enabled = !r.enabled; }));
+    $$(`#rem-${g} [data-goal-mode]`).forEach((b) => {
+      b.addEventListener('click', () => patch((r) => { r.mode = b.dataset.goalMode; }));
+    });
+    $(`#rem-${g}-prayer`).addEventListener('change', (e) => {
+      if (!PRAYERS.includes(e.target.value)) return reject('Choose a prayer');
+      patch((r) => { r.prayer = e.target.value; });
+    });
+    const setOffset = (n) => patch((r) => { r.offsetMin = clamp(Math.round(n), -MAX_OFFSET_MIN, MAX_OFFSET_MIN); });
+    $(`#rem-${g}-offset`).addEventListener('change', (e) => {
+      const n = parseNumber(e.target.value);
+      if (n === null) return reject('Enter a number of minutes');
+      setOffset(n);
+    });
+    $$(`#rem-${g} [data-step]`).forEach((b) => {
+      b.addEventListener('click', () => setOffset(store.get().settings.reminders[g].offsetMin + Number(b.dataset.step)));
+    });
+    $(`#rem-${g}-time`).addEventListener('change', (e) => {
+      if (!TIME_RE.test(e.target.value)) return reject('Enter a valid time');
+      patch((r) => { r.time = e.target.value; });
     });
   }
   $('#rem-sleep-time').addEventListener('change', (e) => {
@@ -225,6 +266,37 @@ function offsetRow([key, label, prayer]) {
       </div>`;
 }
 
+function goalRow(g) {
+  const label = GOAL_LABELS[g];
+  const modes = Object.entries(GOAL_MODE_LABELS).map(([m, text]) => `
+          <button type="button" data-goal-mode="${m}" aria-pressed="false">${text}</button>`).join('');
+  const prayers = PRAYERS.map((p) => `<option value="${p}">${PRAYER_LABELS[p]}</option>`).join('');
+  return `
+      <div class="settings-row settings-row--col" id="rem-${g}">
+        <div class="settings-split settings-split--center">
+          <span class="settings-grow">${label}<small>Goal reminder</small></span>
+          ${switchHtml(g, label)}
+        </div>
+        <div class="segmented" role="group" aria-label="${label} reminder timing">${modes}
+        </div>
+        <div class="settings-goal-fields" id="rem-${g}-after">
+          <select class="settings-field settings-field--select" id="rem-${g}-prayer" aria-label="${label} reminder prayer">${prayers}</select>
+          ${stepperHtml({
+            inputId: `rem-${g}-offset`,
+            label: `${label} reminder, minutes after the prayer (negative is before)`,
+            step: OFFSET_STEP_MIN,
+            max: MAX_OFFSET_MIN,
+            less: `${OFFSET_STEP_MIN} minutes earlier`,
+            more: `${OFFSET_STEP_MIN} minutes later`,
+          })}
+        </div>
+        <div class="settings-goal-fields" id="rem-${g}-fixed">
+          <span class="settings-grow">Every day at</span>
+          <input class="settings-field settings-field--time" type="time" id="rem-${g}-time" aria-label="${label} reminder time">
+        </div>
+      </div>`;
+}
+
 function template() {
   const themes = THEMES.map((mode) => `
           <button type="button" data-theme-mode="${mode}" aria-pressed="false">${THEME_LABELS[mode]}</button>`).join('');
@@ -262,6 +334,7 @@ function template() {
         <input class="settings-field settings-field--time" type="time" id="rem-sleep-time" aria-label="Sleep reminder time">
         ${switchHtml('sleep', 'Before Sleep')}
       </div>
+      ${GOAL_REMINDERS.map(goalRow).join('')}
       <div class="settings-row" id="rem-lastThird">
         <span class="settings-grow">Last third of the night<small>A gentle nudge for tahajjud and dua &middot; off by default</small></span>
         ${switchHtml('lastThird', 'Last third of the night')}
