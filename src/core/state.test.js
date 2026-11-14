@@ -15,6 +15,7 @@ describe('DEFAULT_STATE', () => {
           morning: { enabled: true, prayer: 'fajr', offsetMin: 60 },
           evening: { enabled: true, prayer: 'asr', offsetMin: 60 },
           sleep: { enabled: true, time: '22:00' },
+          lastThird: { enabled: false },
         },
       },
       progress: { memorizedUpTo: 0 },
@@ -95,6 +96,7 @@ describe('migrate', () => {
         morning: { enabled: false, prayer: 'sunrise', offsetMin: -15 },
         evening: { enabled: true, prayer: 'maghrib', offsetMin: 0 },
         sleep: { enabled: true, time: '23:30' },
+        lastThird: { enabled: false },
       },
     };
     expect(migrate({ settings }).settings).toEqual(settings);

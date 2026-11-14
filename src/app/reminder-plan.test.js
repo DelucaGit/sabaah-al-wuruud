@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { defaultState } from '../core/state.js';
+import { defaultState, migrate } from '../core/state.js';
 import { markDone, setCounter } from '../core/daily.js';
 import { DAYS_AHEAD, planReminders, scheduleKey, tapPath } from './reminder-plan.js';
 
@@ -10,6 +10,41 @@ const getTimes = (date) => ({
 });
 
 const NOW = new Date(2026, 0, 10, 4, 0); // before every reminder of the day
+
+const getNight = (date) => ({
+  lastThirdStart: new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 3),
+});
+
+describe('last-third reminder', () => {
+  it('is off by default and not scheduled', () => {
+    const list = planReminders(defaultState(), NOW, { getTimes, getNight });
+    expect(list.some((n) => n.section === 'lastThird')).toBe(false);
+    expect(list).toHaveLength(DAYS_AHEAD * 3);
+  });
+
+  it('is scheduled at the last-third start when on', () => {
+    const state = defaultState();
+    state.settings.reminders.lastThird.enabled = true;
+    const list = planReminders(state, NOW, { getTimes, getNight });
+    const night = list.filter((n) => n.section === 'lastThird');
+    expect(night).toHaveLength(DAYS_AHEAD);
+    expect(night[0].at).toEqual(new Date(2026, 0, 11, 3));
+    expect(new Set(list.map((n) => n.id)).size).toBe(list.length);
+  });
+
+  it('changes scheduleKey and taps open the app', () => {
+    const a = defaultState();
+    const b = defaultState();
+    b.settings.reminders.lastThird.enabled = true;
+    expect(scheduleKey(a, NOW)).not.toBe(scheduleKey(b, NOW));
+    expect(tapPath('lastThird')).toBe('/');
+  });
+
+  it('old states without the setting migrate to off', () => {
+    const state = migrate({ settings: { reminders: { sleep: { enabled: false } } } });
+    expect(state.settings.reminders.lastThird).toEqual({ enabled: false });
+  });
+});
 
 describe('planReminders', () => {
   it('schedules three reminders a day for DAYS_AHEAD days', () => {
