@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <title>Round 2 C: refined line-meets-fill, cupped dua hands with a rose and an ornamental touch</title>
+  <!-- Lavender silhouette on white (two tints) with fine line work. Artwork stays inside the central 66% circle (r 338). -->
+  <rect width="1024" height="1024" fill="#FFFFFF"/>
+  <defs>
+    <!-- Right hand; x is measured from the centre line. Slender fingers held together, thumb close, sleeve cuff. -->
+    <g id="hand-c">
+      <path fill="#8E64C6" d="M 3,774 L 3,632 L 150,632 L 160,668 C 165,648 172,626 181,609 C 189,594 208,596 211,616
+               C 214,648 208,694 198,728 C 188,758 152,776 122,786 L 120,800 L 38,800 L 36,788 C 24,782 3,782 3,774 Z"/>
+      <g fill="none" stroke="#8E64C6" stroke-linecap="round">
+        <path stroke-width="32" d="M 20,646 C 20,610 22,586 27,566"/>
+        <path stroke-width="33" d="M 58,646 C 60,598 65,566 73,538"/>
+        <path stroke-width="34" d="M 96,646 C 100,594 108,560 118,530"/>
+        <path stroke-width="33" d="M 134,646 C 140,604 148,576 158,552"/>
+      </g>
+      <!-- fine lines: knuckle creases -->
+      <g fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round">
+        <path d="M 12,600 L 32,602"/>
+        <path d="M 52,584 L 74,588"/>
+        <path d="M 92,578 L 116,584"/>
+        <path d="M 132,596 L 154,604"/>
+      </g>
+      <!-- sleeve cuff with a row of dots -->
+      <rect x="30" y="798" width="98" height="30" rx="8" fill="#7750B2"/>
+      <g fill="#FFFFFF">
+        <circle cx="48" cy="813" r="4"/><circle cx="64" cy="813" r="4"/><circle cx="80" cy="813" r="4"/>
+        <circle cx="96" cy="813" r="4"/><circle cx="112" cy="813" r="4"/>
+      </g>
+    </g>
+    <g id="leaf-c">
+      <path fill="#8E64C6" d="M 0,0 Q 16,-44 104,-48 Q 64,16 0,0 Z"/>
+      <path fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" d="M 14,-8 Q 50,-30 86,-40 M 40,-24 L 44,-38 M 56,-31 L 62,-18"/>
+    </g>
+    <!-- crescent of dots that swells and fades -->
+    <g id="dots-c" fill="#8E64C6">
+      <circle cx="357" cy="356" r="5"/>
+      <circle cx="349" cy="323" r="7"/>
+      <circle cx="347" cy="288" r="9"/>
+      <circle cx="353" cy="254" r="7.5"/>
+      <circle cx="363" cy="226" r="6"/>
+      <circle cx="376" cy="204" r="4.5"/>
+    </g>
+  </defs>
+
+  <g id="hands">
+    <use href="#hand-c" transform="translate(512,0)"/>
+    <use href="#hand-c" transform="translate(512,0) scale(-1,1)"/>
+    <!-- hollow of the bowl with a fine rim line -->
+    <path fill="#7750B2" d="M 384,690 C 420,668 604,668 640,690 C 654,716 620,752 512,756 C 404,752 370,716 384,690 Z"/>
+    <path fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" d="M 372,676 C 420,650 604,650 652,676"/>
+    <path fill="none" stroke="#FFFFFF" stroke-width="5" d="M 512,560 L 512,784"/>
+  </g>
+
+  <use href="#dots-c"/>
+  <use href="#dots-c" transform="translate(1024,0) scale(-1,1)"/>
+
+  <g id="rose" transform="translate(512,300)">
+    <!-- stem, leaves and two fine tendrils -->
+    <path fill="none" stroke="#8E64C6" stroke-width="11" stroke-linecap="round" d="M 0,92 C 6,126 -6,160 0,194"/>
+    <g fill="none" stroke="#8E64C6" stroke-width="5" stroke-linecap="round">
+      <path d="M 2,192 C 26,198 48,190 50,172 C 51,160 38,158 37,168"/>
+      <path d="M -2,192 C -26,198 -48,190 -50,172 C -51,160 -38,158 -37,168"/>
+    </g>
+    <use href="#leaf-c" transform="translate(2,160) rotate(-4) scale(0.84)"/>
+    <use href="#leaf-c" transform="translate(-1,140) rotate(8) scale(-0.76,0.76)"/>
+    <g fill="#8E64C6" stroke="#FFFFFF" stroke-width="6" stroke-linejoin="round">
+      <path d="M -40,84 C -22,108 22,108 40,84 C 30,112 14,104 0,126 C -14,104 -30,112 -40,84 Z" stroke="none"/>
+      <!-- outer petals with rolled lips -->
+      <path d="M -6,100 C -64,106 -124,72 -128,6 C -129,-22 -112,-46 -94,-42 C -84,-10 -50,30 -6,100 Z"/>
+      <path d="M 6,100 C 64,106 124,72 128,6 C 129,-22 112,-46 94,-42 C 84,-10 50,30 6,100 Z"/>
+      <!-- bud -->
+      <path d="M -56,-20 C -66,-78 -36,-114 0,-114 C 36,-114 66,-78 56,-20 C 30,0 -30,0 -56,-20 Z"/>
+      <!-- wrapping petals -->
+      <path d="M -74,-70 C -36,-46 8,-14 40,40 C 34,74 14,94 0,98 C -52,84 -98,18 -74,-70 Z"/>
+      <path d="M 74,-70 C 46,-34 2,-6 -30,52 C -22,80 -10,94 0,98 C 52,84 98,18 74,-70 Z"/>
+    </g>
+    <!-- fine lines: heart of the bud, petal folds -->
+    <g fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round">
+      <path d="M 6,-62 C -6,-78 -26,-66 -18,-50 C -10,-36 16,-40 22,-58 C 28,-78 8,-94 -14,-90 C -34,-86 -44,-66 -40,-48"/>
+      <path d="M 58,-34 C 62,6 48,44 20,72"/>
+      <path d="M -62,-24 C -62,8 -50,36 -34,56"/>
+      <path d="M -112,-10 C -108,30 -86,62 -52,82"/>
+      <path d="M 112,-10 C 108,30 86,62 52,82"/>
+    </g>
+  </g>
+</svg>
