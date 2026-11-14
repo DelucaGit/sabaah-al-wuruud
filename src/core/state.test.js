@@ -21,6 +21,13 @@ describe('DEFAULT_STATE', () => {
       progress: { memorizedUpTo: 0 },
       pins: { morning: [], evening: [], sleep: [], home: [], travel: [] },
       daily: { dayKey: null, done: {}, counters: {} },
+      goals: {
+        hifdhTarget: 1,
+        murajaaTarget: 5,
+        items: [],
+        lastRevised: {},
+        daily: { dayKey: null, done: {}, murajaaPages: [] },
+      },
     });
   });
 

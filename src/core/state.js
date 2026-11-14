@@ -37,6 +37,13 @@ export const DEFAULT_STATE = deepFreeze({
   progress: { memorizedUpTo: 0 },
   pins: { morning: [], evening: [], sleep: [], home: [], travel: [] },
   daily: { dayKey: null, done: {}, counters: {} },
+  goals: {
+    hifdhTarget: 1,
+    murajaaTarget: 5,
+    items: [],
+    lastRevised: {},
+    daily: { dayKey: null, done: {}, murajaaPages: [] },
+  },
 });
 
 /** A fresh, mutable copy of the defaults. */
@@ -91,7 +98,50 @@ export function migrate(raw) {
       done: filterValues(daily.done, (v) => typeof v === 'boolean'),
       counters: filterValues(daily.counters, (v) => Number.isInteger(v) && v >= 0),
     },
+    goals: migrateGoals(src.goals, page(obj(src.progress).memorizedUpTo)),
   };
+}
+
+const MAX_TARGET = 50;
+const MAX_ITEM_TEXT = 100;
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function migrateGoals(raw, memorizedUpTo) {
+  const g = obj(raw);
+  const d = DEFAULT_STATE.goals;
+  const daily = obj(g.daily);
+  const seen = new Set();
+  const items = (Array.isArray(g.items) ? g.items : []).flatMap((it) => {
+    const text = isObject(it) && typeof it.text === 'string' ? it.text.trim().slice(0, MAX_ITEM_TEXT) : '';
+    if (!text || typeof it.id !== 'string' || !it.id || seen.has(it.id)) return [];
+    seen.add(it.id);
+    return [{ id: it.id, text }];
+  });
+  const lastRevised = {};
+  for (const [k, v] of Object.entries(obj(g.lastRevised))) {
+    const n = Number(k);
+    if (Number.isInteger(n) && n >= 1 && n <= memorizedUpTo && typeof v === 'string' && DATE_RE.test(v)) {
+      lastRevised[n] = v;
+    }
+  }
+  const pages = Array.isArray(daily.murajaaPages)
+    ? [...new Set(daily.murajaaPages.filter((n) => Number.isInteger(n) && n >= 1 && n <= MAX_PAGE))]
+    : [];
+  return {
+    hifdhTarget: intIn(g.hifdhTarget, 0, MAX_TARGET, d.hifdhTarget),
+    murajaaTarget: intIn(g.murajaaTarget, 0, MAX_TARGET, d.murajaaTarget),
+    items,
+    lastRevised,
+    daily: {
+      dayKey: typeof daily.dayKey === 'string' && daily.dayKey ? daily.dayKey : null,
+      done: filterValues(daily.done, (v) => typeof v === 'boolean'),
+      murajaaPages: pages,
+    },
+  };
+}
+
+function intIn(v, min, max, fallback) {
+  return Number.isInteger(v) && v >= min && v <= max ? v : fallback;
 }
 
 /**
