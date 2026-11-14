@@ -117,6 +117,42 @@
 }
 .today-times__item--next b { color: var(--color-primary); font-weight: 700; }
 
+/* ---------- middle of the night + last third ---------- */
+.today-night {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.today-night__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: .86rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+.today-night__row small {
+  display: block;
+  font-size: .72rem;
+  color: var(--color-muted);
+}
+.today-night__row b {
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+.today-night__row--best {
+  background: var(--color-primary-soft);
+  border-color: var(--color-lavender);
+}
+.today-night__row--best b { color: var(--color-primary); font-weight: 700; }
+
 /* ---------- prayer times unavailable ---------- */
 .today-note {
   padding: 18px 20px;
