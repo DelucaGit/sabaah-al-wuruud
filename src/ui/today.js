@@ -9,6 +9,7 @@ import { pickReflectionVerse } from '../core/memorization.js';
 import { timeLeftInWindow } from '../core/dial.js';
 import { navigate } from '../router.js';
 import { esc, icon } from './kit.js';
+import { createScene } from './scene.js';
 import {
   PRAYER_KEYS, PRAYER_LABELS, prayerLocation, formatTime, todayPrayerTimes,
 } from './prayer-view.js';
@@ -163,6 +164,7 @@ export function render(view) {
   const prayersEl = view.querySelector('.today-prayers');
   const reflectEl = view.querySelector('.today-reflect');
   let alive = true;
+  const scene = createScene(view.querySelector('.today')); // sky behind the dial
   let shownUpTo = null; // memorizedUpTo the reflection card was painted for
   let windowTimer = null; // repaints the moment the dial's window changes
 
@@ -170,6 +172,7 @@ export function render(view) {
     const now = new Date();
     dateEl.innerHTML = dateHtml(now, state.settings);
     helloEl.innerHTML = `<span>Assalamu alaikum,</span>${esc(state.settings.name)} 🤍`;
+    scene.hold();
     prayersEl.innerHTML = prayersHtml(state.settings, now);
     clearTimeout(windowTimer);
     const ms = msToNextWindow(state.settings, now);
@@ -177,6 +180,7 @@ export function render(view) {
     if (ms !== null && ms < 86_400_000) {
       windowTimer = setTimeout(() => { if (alive) paintTop(store.get()); }, ms + 250);
     }
+    scene.sync(prayersEl.querySelector('.today-dial'), state.settings, now);
   }
 
   function paintReflection(state) {
@@ -220,5 +224,6 @@ export function render(view) {
     unsubscribe();
     clearInterval(timer);
     clearTimeout(windowTimer);
+    scene.destroy();
   };
 }

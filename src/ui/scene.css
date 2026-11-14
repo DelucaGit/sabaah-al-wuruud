@@ -1,0 +1,269 @@
+/*
+ * Time-of-day scene behind the prayer dial card (see scene.js).
+ *
+ * CONTRACT FOR WHATEVER SITS ON TOP (the dial, its text):
+ *   scene.js sets two attributes on the card element it is mounted in:
+ *     data-scene      = "fajr" | "duha" | "dhuhr" | "asr" | "maghrib" | "isha"
+ *     data-scene-tone = "dark"  (fajr, maghrib, isha: use light-on-dark colours)
+ *                     | "light" (duha, dhuhr, asr: use dark-on-light colours)
+ *   The tone depends on the scene only, not on the app's light/dark theme.
+ *   scene.js also sets data-dial-tone to the same value: that is the prayer
+ *   ring's own switch (see prayer-dial.css).
+ *   Under [data-scene-tone] the theme tokens (--color-text, --color-muted,
+ *   --color-primary, --color-primary-soft, --color-lavender, --color-surface,
+ *   --color-border ...) are re-pointed at values that read well on that scene,
+ *   so a component that only uses the tokens needs no extra rules. For
+ *   anything special, select on the attribute:
+ *     [data-scene-tone="dark"] .my-part { ... }
+ *
+ * LAYERS (back to front, all inside .scene, which sits behind the card's
+ * content): six .scene__sky gradients (cross-faded), .scene__stars,
+ * .scene__moon, .scene__sun, .scene__scrim (soft patch behind the centre
+ * text), .scene__hills (lavender silhouette), .scene__figure.
+ *
+ * .scene__figure is the mount point for the seated figure (issue #117):
+ * a 48 x 52 px box whose bottom edge is the ground, centred 11% from the
+ * card's left edge on the crest of the front hill, in the corner the ring
+ * and its labels leave free. The sun and the moon are on the right, so the
+ * figure looks up and to the right.
+ *
+ * Scenes blend over --scene-blend. With prefers-reduced-motion the global
+ * rule in base.css removes all transitions, so scenes switch at once.
+ */
+
+[data-scene-tone] {
+  position: relative;
+  isolation: isolate; /* keeps the scene's negative z-index inside the card */
+  color: var(--color-text);
+}
+[data-scene-tone="dark"] {
+  --color-text: #FBF7FF;
+  --color-muted: #E6DCF2;
+  --color-primary: #E8D4FC;
+  --color-on-primary: #1D1525;
+  --color-primary-soft: rgba(255, 255, 255, .2);
+  --color-primary-softer: rgba(255, 255, 255, .12);
+  --color-lavender: #CDB0EE;
+  --color-surface: #2A1E42;
+  --color-border: rgba(255, 255, 255, .22);
+}
+[data-scene-tone="light"] {
+  --color-text: #2B2033;
+  --color-muted: #4F4065;
+  --color-primary: #673A9A;
+  --color-on-primary: #FFFFFF;
+  --color-primary-soft: rgba(255, 255, 255, .62);
+  --color-primary-softer: rgba(255, 255, 255, .4);
+  --color-lavender: #9C74CE;
+  --color-surface: #FFFFFF;
+  --color-border: rgba(124, 77, 174, .25);
+}
+/* Ring labels sit on the hills: a little darker than the ring's own light tone. */
+.today-dial[data-scene-tone="light"][data-dial-tone] {
+  --dial-label: #453759;
+  --dial-text-muted: #453759;
+}
+
+.scene {
+  --scene-blend: 4s;
+  --scene-ground: 43px; /* height of the hill crest (and horizon) above the card's bottom edge */
+  --hill-back: #D6C4F3;
+  --hill-front: #C2A9EA;
+  --sun-x: 68%;
+  --sun-y: 16%;
+
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.scene > * { position: absolute; }
+
+/* First paint: show the right scene at once. */
+.scene--instant,
+.scene--instant * { transition: none !important; }
+
+/* ---------- skies ---------- */
+/* The outgoing sky stays opaque under the incoming one, then switches off. */
+.scene__sky {
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0s linear var(--scene-blend);
+}
+.scene[data-scene="fajr"] .scene__sky--fajr,
+.scene[data-scene="duha"] .scene__sky--duha,
+.scene[data-scene="dhuhr"] .scene__sky--dhuhr,
+.scene[data-scene="asr"] .scene__sky--asr,
+.scene[data-scene="maghrib"] .scene__sky--maghrib,
+.scene[data-scene="isha"] .scene__sky--isha {
+  opacity: 1;
+  z-index: 1;
+  transition: opacity var(--scene-blend) ease-in-out;
+}
+
+.scene__sky--fajr {
+  background:
+    radial-gradient(ellipse 75% 16% at 72% calc(100% - var(--scene-ground)), rgba(255, 196, 190, .6), transparent 100%),
+    linear-gradient(180deg, #1B1436 0%, #2C2156 46%, #473779 78%, #6E5AA6 100%);
+}
+.scene__sky--duha {
+  background:
+    radial-gradient(ellipse 70% 42% at 78% calc(100% - var(--scene-ground)), rgba(255, 226, 190, .85), transparent 100%),
+    linear-gradient(180deg, #B6A0E6 0%, #D7BEEE 36%, #F5C8DA 64%, #FFD3BA 84%, #FFE2C8 100%);
+}
+.scene__sky--dhuhr {
+  background: linear-gradient(180deg, #C9B8F1 0%, #E2D7FA 46%, #F6F1FF 80%, #FFFFFF 100%);
+}
+.scene__sky--asr {
+  background: linear-gradient(180deg, #A486D8 0%, #C0A1E0 46%, #E0BCD9 80%, #F2D0C4 100%);
+}
+.scene__sky--maghrib {
+  background: linear-gradient(180deg, #37226A 0%, #5F3489 30%, #A34A8B 58%, #E2735F 82%, #F8A45A 100%);
+}
+.scene__sky--isha {
+  background: linear-gradient(180deg, #120E2C 0%, #1E1746 52%, #31266A 100%);
+}
+
+/* ---------- stars and moon ---------- */
+.scene__stars,
+.scene__moon,
+.scene__sun { z-index: 2; }
+
+.scene__stars {
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--scene-blend) ease-in-out;
+  background:
+    radial-gradient(1.6px 1.6px at 9% 14%, #FFF 50%, transparent 52%),
+    radial-gradient(1.2px 1.2px at 21% 31%, #FFF 50%, transparent 52%),
+    radial-gradient(1.8px 1.8px at 33% 9%, #FFF 50%, transparent 52%),
+    radial-gradient(1.2px 1.2px at 46% 22%, #FFF 50%, transparent 52%),
+    radial-gradient(1.5px 1.5px at 57% 8%, #FFF 50%, transparent 52%),
+    radial-gradient(1.2px 1.2px at 88% 34%, #FFF 50%, transparent 52%),
+    radial-gradient(1.7px 1.7px at 93% 11%, #FFF 50%, transparent 52%),
+    radial-gradient(1.2px 1.2px at 14% 52%, #FFF 50%, transparent 52%),
+    radial-gradient(1.4px 1.4px at 82% 55%, #FFF 50%, transparent 52%),
+    radial-gradient(1.1px 1.1px at 66% 40%, #FFF 50%, transparent 52%),
+    radial-gradient(1.1px 1.1px at 38% 46%, #FFF 50%, transparent 52%);
+}
+.scene[data-scene="isha"] .scene__stars { opacity: .9; }
+.scene[data-scene="fajr"] .scene__stars { opacity: .3; }
+
+.scene__moon {
+  left: 74%;
+  top: 15%;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  box-shadow: inset -8px 3px 0 0 #F5ECFF;
+  filter: drop-shadow(0 0 8px rgba(214, 190, 255, .55));
+  transform: translate(-50%, 8px) rotate(-18deg);
+  opacity: 0;
+  transition: opacity var(--scene-blend) ease-in-out, transform var(--scene-blend) ease-in-out;
+}
+.scene[data-scene="isha"] .scene__moon {
+  opacity: 1;
+  transform: translate(-50%, 0) rotate(-18deg);
+}
+
+/* ---------- sun ---------- */
+.scene__sun {
+  left: var(--sun-x);
+  top: var(--sun-y);
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  border-radius: 50%;
+  background: #FFFDF2;
+  box-shadow: 0 0 0 10px rgba(255, 255, 255, .28), 0 0 44px 18px rgba(255, 255, 255, .6);
+  opacity: 0;
+  transition:
+    left var(--scene-blend) ease-in-out,
+    top var(--scene-blend) ease-in-out,
+    opacity var(--scene-blend) ease-in-out,
+    background-color var(--scene-blend) ease-in-out,
+    box-shadow var(--scene-blend) ease-in-out;
+}
+.scene[data-scene="fajr"] { --sun-x: 74%; --sun-y: calc(100% + 30px); }
+.scene[data-scene="duha"] { --sun-x: 78%; --sun-y: calc(100% - var(--scene-ground) - 30px); }
+.scene[data-scene="dhuhr"] { --sun-x: 68%; --sun-y: 16%; }
+.scene[data-scene="asr"] { --sun-x: 80%; --sun-y: 40%; }
+.scene[data-scene="maghrib"] { --sun-x: 70%; --sun-y: calc(100% - var(--scene-ground) + 2px); }
+.scene[data-scene="isha"] { --sun-x: 62%; --sun-y: calc(100% + 30px); }
+
+.scene[data-scene="duha"] .scene__sun {
+  opacity: 1;
+  background: #FFF3DC;
+  box-shadow: 0 0 0 10px rgba(255, 226, 196, .35), 0 0 46px 20px rgba(255, 205, 170, .75);
+}
+.scene[data-scene="dhuhr"] .scene__sun { opacity: 1; }
+.scene[data-scene="asr"] .scene__sun {
+  opacity: 1;
+  background: #FFEBC6;
+  box-shadow: 0 0 0 10px rgba(255, 224, 180, .3), 0 0 44px 18px rgba(255, 214, 170, .6);
+}
+.scene[data-scene="maghrib"] .scene__sun {
+  opacity: 1;
+  background: #FFC27A;
+  box-shadow: 0 0 0 10px rgba(255, 170, 100, .3), 0 0 50px 22px rgba(255, 150, 90, .7);
+}
+
+/* ---------- soft patch behind the centre text ---------- */
+.scene__scrim {
+  inset: 0;
+  z-index: 3;
+  background-color: rgba(255, 255, 255, .4);
+  -webkit-mask-image: radial-gradient(ellipse 46% 40% at 50% 46%, #000 0%, transparent 100%);
+  mask-image: radial-gradient(ellipse 46% 40% at 50% 46%, #000 0%, transparent 100%);
+  transition: background-color var(--scene-blend) ease-in-out;
+}
+.scene[data-scene="fajr"] .scene__scrim,
+.scene[data-scene="isha"] .scene__scrim { background-color: rgba(18, 12, 40, .3); }
+.scene[data-scene="maghrib"] .scene__scrim { background-color: rgba(40, 16, 62, .46); }
+
+/* ---------- hills ---------- */
+.scene__hills {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  width: 100%;
+  height: 72px;
+}
+.scene__hill { transition: fill var(--scene-blend) ease-in-out; }
+.scene__hill--back { fill: var(--hill-back); }
+.scene__hill--front { fill: var(--hill-front); }
+
+.scene[data-scene="fajr"] { --hill-back: #3C2E6C; --hill-front: #291E50; }
+.scene[data-scene="duha"] { --hill-back: #D2B4E4; --hill-front: #BC9BDA; }
+.scene[data-scene="dhuhr"] { --hill-back: #D6C4F3; --hill-front: #C2A9EA; }
+.scene[data-scene="asr"] { --hill-back: #BFA0DC; --hill-front: #AC8AD0; }
+.scene[data-scene="maghrib"] { --hill-back: #5A3384; --hill-front: #3C2062; }
+.scene[data-scene="isha"] { --hill-back: #2A1F58; --hill-front: #1B133E; }
+
+/* ---------- where the figure sits (issue #117) ---------- */
+.scene__figure {
+  left: 11%;
+  bottom: var(--scene-ground);
+  z-index: 5;
+  width: 48px;
+  height: 52px;
+  margin-left: -24px;
+}
+
+/* ---------- dark app theme: take the glare off ---------- */
+.scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: #150E26;
+  opacity: 0;
+}
+:root[data-theme="dark"] .scene::after { opacity: .12; }
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] .scene::after,
+  :root:not([data-theme]) .scene::after { opacity: .12; }
+}
