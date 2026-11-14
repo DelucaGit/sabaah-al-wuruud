@@ -19,6 +19,7 @@ describe('DEFAULT_STATE', () => {
           hifdh: { enabled: true, mode: 'prayer', prayer: 'fajr', offsetMin: 30, time: '06:30' },
           murajaa: { enabled: true, mode: 'prayer', prayer: 'asr', offsetMin: 30, time: '16:00' },
           checklist: { enabled: true, mode: 'prayer', prayer: 'isha', offsetMin: 30, time: '21:00' },
+          encouragement: { enabled: true, perDay: 3 },
         },
       },
       progress: { memorizedUpTo: 0 },
@@ -110,6 +111,7 @@ describe('migrate', () => {
         hifdh: { enabled: false, mode: 'time', prayer: 'dhuhr', offsetMin: -10, time: '07:15' },
         murajaa: { enabled: true, mode: 'prayer', prayer: 'maghrib', offsetMin: 5, time: '16:00' },
         checklist: { enabled: true, mode: 'time', prayer: 'isha', offsetMin: 30, time: '20:45' },
+        encouragement: { enabled: false, perDay: 1 },
       },
     };
     expect(migrate({ settings }).settings).toEqual(settings);
