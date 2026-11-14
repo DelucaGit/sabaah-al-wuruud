@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { getPrayerTimes, highlightedSection, nextPrayer } from './prayer.js';
+import { getLastThirdOfNight, getMiddleOfNight, getNightTimes, getPrayerTimes, highlightedSection, nextPrayer } from './prayer.js';
 
 const CAIRO = { name: 'Cairo', lat: 30.0444, lng: 31.2357 };
 const CAIRO_TZ = { ...CAIRO, timeZone: 'Africa/Cairo' };
@@ -152,4 +152,42 @@ describe('nextPrayer', () => {
       expect(nextPrayer(today.asr, location)).toEqual({ name: 'maghrib', time: today.maghrib });
     });
   }
+});
+
+describe('night times', () => {
+  const check = (iso) => {
+    const d = new Date(iso);
+    const n = getNightTimes(d, CAIRO_TZ);
+    const tomorrow = getPrayerTimes(new Date(d.getTime() + 24 * 3600 * 1000), CAIRO_TZ);
+    expect(n.maghrib.getTime()).toBe(getPrayerTimes(d, CAIRO_TZ).maghrib.getTime());
+    expect(n.fajr.getTime()).toBe(tomorrow.fajr.getTime());
+    expect(n.lengthMs).toBeGreaterThan(8 * 3600 * 1000);
+    expect(n.lengthMs).toBeLessThan(15 * 3600 * 1000);
+    expect(Math.abs(n.middle.getTime() - n.maghrib.getTime() - n.lengthMs / 2)).toBeLessThan(2);
+    expect(Math.abs(n.fajr.getTime() - n.lastThirdStart.getTime() - n.lengthMs / 3)).toBeLessThan(2);
+    expect(n.middle.getTime()).toBeLessThan(n.lastThirdStart.getTime());
+    expect(getMiddleOfNight(d, CAIRO_TZ).getTime()).toBe(n.middle.getTime());
+    expect(getLastThirdOfNight(d, CAIRO_TZ).getTime()).toBe(n.lastThirdStart.getTime());
+    return n;
+  };
+
+  it('normal day: winter night is 8-15h, middle shortly after midnight Cairo', () => {
+    const n = check('2026-01-15T10:00:00Z');
+    expect(cairoClock(n.maghrib).slice(0, 10)).toBe('2026-01-15');
+    expect(cairoClock(n.fajr).slice(0, 10)).toBe('2026-01-16');
+    const mid = minutesOf(cairoClock(n.middle));
+    expect(mid).toBeGreaterThan(22 * 60);
+    expect(mid).toBeLessThan(24 * 60);
+  });
+
+  it('rolls over a month end (31 Jan -> 1 Feb)', () => {
+    const n = check('2026-01-31T10:00:00Z');
+    expect(cairoClock(n.maghrib).slice(0, 10)).toBe('2026-01-31');
+    expect(cairoClock(n.fajr).slice(0, 10)).toBe('2026-02-01');
+  });
+
+  it('rolls over a year end (31 Dec -> 1 Jan)', () => {
+    const n = check('2026-12-31T10:00:00Z');
+    expect(cairoClock(n.fajr).slice(0, 10)).toBe('2027-01-01');
+  });
 });
