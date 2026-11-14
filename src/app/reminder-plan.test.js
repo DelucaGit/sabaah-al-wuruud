@@ -14,7 +14,7 @@ const getTimes = (date) => ({
 const NOW = new Date(2026, 0, 10, 4, 0); // before every reminder of the day
 
 // The adhkar reminders only (the Quran goal reminders have their own block).
-const adhkarOnly = (list) => list.filter((n) => !GOAL_REMINDERS.includes(n.section));
+const adhkarOnly = (list) => list.filter((n) => !GOAL_REMINDERS.includes(n.section) && n.section !== 'encouragement');
 
 const getNight = (date) => ({
   lastThirdStart: new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 3),
@@ -96,7 +96,7 @@ describe('planReminders', () => {
       days: 2,
       getTimes: () => { throw new Error('no times'); },
     });
-    expect(list.map((n) => n.section)).toEqual(['sleep', 'sleep']);
+    expect(adhkarOnly(list).map((n) => n.section)).toEqual(['sleep', 'sleep']);
   });
 
   it('works with the real prayer calculation', () => {
@@ -113,7 +113,16 @@ describe('scheduleKey', () => {
     b.daily = setCounter(b.daily, 'some-dhikr', 57, NOW);
     b.pins.morning = ['x'];
     b.settings.theme = 'dark';
+    expect(scheduleKey(b, NOW)).toBe(scheduleKey(a, NOW));
+  });
+
+  it('ignores the name only while encouragement is off', () => {
+    const a = defaultState();
+    const b = defaultState();
     b.settings.name = 'A';
+    expect(scheduleKey(b, NOW)).not.toBe(scheduleKey(a, NOW));
+    a.settings.reminders.encouragement.enabled = false;
+    b.settings.reminders.encouragement.enabled = false;
     expect(scheduleKey(b, NOW)).toBe(scheduleKey(a, NOW));
   });
 
@@ -221,5 +230,54 @@ describe('Quran goal reminders', () => {
 
   it("open the Qur'an tab when tapped", () => {
     for (const g of GOAL_REMINDERS) expect(tapPath(g)).toBe('/quran');
+  });
+});
+
+describe('encouragement reminders', () => {
+  const enc = (list) => list.filter((n) => n.section === 'encouragement');
+
+  it('are on by default, three a day with the name filled in and unique ids', () => {
+    const list = planReminders(defaultState(), NOW, { getTimes });
+    expect(enc(list)).toHaveLength(DAYS_AHEAD * 3);
+    expect(enc(list).every((n) => !n.body.includes('{name}'))).toBe(true);
+    expect(new Set(list.map((n) => n.id)).size).toBe(list.length);
+    expect(enc(list).some((n) => n.body.includes('Aisha'))).toBe(true);
+  });
+
+  it('follow perDay and the enabled switch', () => {
+    const state = defaultState();
+    state.settings.reminders.encouragement.perDay = 5;
+    expect(enc(planReminders(state, NOW, { days: 1, getTimes }))).toHaveLength(5);
+    state.settings.reminders.encouragement.enabled = false;
+    expect(enc(planReminders(state, NOW, { days: 1, getTimes }))).toHaveLength(0);
+  });
+
+  it('keep 25 minutes clear of the other reminders of the day', () => {
+    const list = planReminders(defaultState(), NOW, { days: 1, getTimes });
+    const others = list.filter((n) => n.section !== 'encouragement');
+    for (const e of enc(list)) {
+      for (const o of others) expect(Math.abs(e.at - o.at)).toBeGreaterThanOrEqual(25 * 60 * 1000);
+    }
+  });
+
+  it('change scheduleKey with their settings and open the app root', () => {
+    const base = scheduleKey(defaultState(), NOW);
+    const a = defaultState();
+    a.settings.reminders.encouragement.perDay = 4;
+    const b = defaultState();
+    b.settings.reminders.encouragement.enabled = false;
+    expect(scheduleKey(a, NOW)).not.toBe(base);
+    expect(scheduleKey(b, NOW)).not.toBe(base);
+    expect(tapPath('encouragement')).toBe('/');
+  });
+
+  it('works with the real prayer calculation in the location zone', () => {
+    const list = enc(planReminders(defaultState(), NOW));
+    expect(list.length).toBeGreaterThanOrEqual(DAYS_AHEAD * 3 - 3);
+    const fmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Africa/Cairo', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+    for (const n of list) {
+      const t = fmt.format(n.at);
+      expect(t >= '09:00' && t <= '20:30').toBe(true);
+    }
   });
 });

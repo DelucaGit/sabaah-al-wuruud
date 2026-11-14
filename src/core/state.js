@@ -21,6 +21,8 @@ const MAX_OFFSET_MIN = 12 * 60;
 /** Quran goal reminders (settings.reminders keys) and how each one is timed. */
 export const GOAL_REMINDERS = ['hifdh', 'murajaa', 'checklist'];
 export const GOAL_REMINDER_MODES = ['prayer', 'time'];
+/** Allowed daytime encouragement messages per day. */
+export const ENCOURAGEMENT_PER_DAY = { min: 1, max: 5, default: 3 };
 
 export const DEFAULT_STATE = deepFreeze({
   version: STATE_VERSION,
@@ -40,6 +42,8 @@ export const DEFAULT_STATE = deepFreeze({
       hifdh: { enabled: true, mode: 'prayer', prayer: 'fajr', offsetMin: 30, time: '06:30' },
       murajaa: { enabled: true, mode: 'prayer', prayer: 'asr', offsetMin: 30, time: '16:00' },
       checklist: { enabled: true, mode: 'prayer', prayer: 'isha', offsetMin: 30, time: '21:00' },
+      // Daytime encouragement: `perDay` (1-5) messages between 09:00 and 20:30.
+      encouragement: { enabled: true, perDay: 3 },
     },
   },
   progress: { memorizedUpTo: 0 },
@@ -94,6 +98,13 @@ export function migrate(raw) {
             : d.settings.reminders.lastThird.enabled,
         },
         ...Object.fromEntries(GOAL_REMINDERS.map((k) => [k, goalReminder(reminders[k], d.settings.reminders[k])])),
+        encouragement: {
+          enabled: typeof obj(reminders.encouragement).enabled === 'boolean'
+            ? reminders.encouragement.enabled
+            : d.settings.reminders.encouragement.enabled,
+          perDay: intIn(obj(reminders.encouragement).perDay, ENCOURAGEMENT_PER_DAY.min, ENCOURAGEMENT_PER_DAY.max,
+            d.settings.reminders.encouragement.perDay),
+        },
       },
     },
     progress: {

@@ -7,6 +7,7 @@
 // `(date) => getPrayerTimes(date, settings.location)` from ./prayer.js.
 
 import { isDone } from './daily.js';
+import { AVOID_PRAYERS, encouragementTimes, fillName, pickMessages } from './encouragement.js';
 
 const MS_PER_MINUTE = 60 * 1000;
 
@@ -36,6 +37,16 @@ export function reminderId(date, section) {
   return yyyymmdd * 10 + SECTION_INDEX[section];
 }
 
+/**
+ * Deterministic id of the day's encouragement slot `k` (0-4):
+ * yyyymmdd * 100 + 80 + k. Ten digits, so it never meets the nine-digit
+ * reminderId range, and it stays below 2^31 (Android int) until year 2147.
+ */
+export function encouragementId(date, k) {
+  const yyyymmdd = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
+  return yyyymmdd * 100 + 80 + k;
+}
+
 // Instant for 'HH:MM' on the local day of `day`, or null if malformed.
 function atLocalTime(day, time) {
   const m = /^(\d{1,2}):(\d{2})$/.exec(String(time ?? ''));
@@ -58,9 +69,15 @@ function atLocalTime(day, time) {
  * @param {{doneToday?: {hifdh?: boolean, murajaa?: boolean, checklist?: boolean}, hasChecklist?: boolean}} [args.goals]
  *   Quran goals: which are already done today (their today entry is skipped)
  *   and whether the checklist has any items (no items, no checklist reminder).
+ *   `hasGoals` (any Quran goal set) lets encouragement speak to the goal state.
+ * @param {{messages: object, name?: string, timeZone?: string}} [args.encouragement]
+ *   Message pools (see ../data/reminders/encouragement.json), the user's name
+ *   and the prayer location's zone. Without it, no encouragement entries are
+ *   built; with it, `settings.reminders.encouragement` ({enabled, perDay})
+ *   decides. See ./encouragement.js.
  * @returns {{id: number, at: Date, title: string, body: string, section: string}[]}
  */
-export function buildSchedule({ now, settings, daily, days = 7, getTimes, getNight, goals = {} }) {
+export function buildSchedule({ now, settings, daily, days = 7, getTimes, getNight, goals = {}, encouragement }) {
   const reminders = settings?.reminders ?? {};
   const nowMs = now.getTime();
   const out = [];
@@ -79,10 +96,13 @@ export function buildSchedule({ now, settings, daily, days = 7, getTimes, getNig
       }
     }
 
+    // Every configured reminder time of this day, kept clear by encouragement
+    // even when already past or skipped as done (so its times stay stable).
+    const dayTimes = [];
+
     for (const section of ['morning', 'evening', 'sleep']) {
       const cfg = reminders[section];
       if (!cfg?.enabled) continue;
-      if (isToday && isDone(daily, section, now)) continue;
 
       let at;
       if (section === 'sleep') {
@@ -92,6 +112,8 @@ export function buildSchedule({ now, settings, daily, days = 7, getTimes, getNig
         const prayerAt = times[cfg.prayer ?? DEFAULT_PRAYER[section]];
         at = prayerAt ? new Date(prayerAt.getTime() + (cfg.offsetMin ?? 0) * MS_PER_MINUTE) : null;
       }
+      if (at) dayTimes.push(at);
+      if (isToday && isDone(daily, section, now)) continue;
       if (!at || at.getTime() <= nowMs) continue;
 
       out.push({
@@ -107,7 +129,6 @@ export function buildSchedule({ now, settings, daily, days = 7, getTimes, getNig
       const cfg = reminders[goal];
       if (!cfg?.enabled) continue;
       if (goal === 'checklist' && goals.hasChecklist !== true) continue;
-      if (isToday && goals.doneToday?.[goal] === true) continue;
 
       let at;
       if (cfg.mode === 'time') {
@@ -117,9 +138,35 @@ export function buildSchedule({ now, settings, daily, days = 7, getTimes, getNig
         const prayerAt = times[cfg.prayer ?? DEFAULT_PRAYER[goal]];
         at = prayerAt ? new Date(prayerAt.getTime() + (cfg.offsetMin ?? 0) * MS_PER_MINUTE) : null;
       }
+      if (at) dayTimes.push(at);
+      if (isToday && goals.doneToday?.[goal] === true) continue;
       if (!at || at.getTime() <= nowMs) continue;
 
       out.push({ id: reminderId(day, goal), at, ...GOAL_TEXT[goal], section: goal });
+    }
+
+    // Daytime encouragement: only when messages are supplied.
+    const enc = reminders.encouragement;
+    if (enc?.enabled && encouragement?.messages) {
+      times ??= getTimes(day);
+      const avoid = [...AVOID_PRAYERS.map((p) => times[p]).filter(Boolean), ...dayTimes];
+      const slots = encouragementTimes({ day, perDay: enc.perDay, avoid, timeZone: encouragement.timeZone });
+      const msgs = pickMessages({
+        day,
+        count: slots.length,
+        messages: encouragement.messages,
+        goals: { hasGoals: goals.hasGoals === true, anyDone: isToday && Object.values(goals.doneToday ?? {}).some((v) => v === true) },
+      });
+      slots.forEach((at, k) => {
+        if (!msgs[k] || at.getTime() <= nowMs) return;
+        out.push({
+          id: encouragementId(day, k),
+          at,
+          title: TITLE,
+          body: fillName(msgs[k].text, encouragement.name),
+          section: 'encouragement',
+        });
+      });
     }
   }
 

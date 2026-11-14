@@ -6,6 +6,7 @@ import { getNightTimes, getPrayerTimes } from '../core/prayer.js';
 import { isChecklistDone, isHifdhDone, isMurajaaDone } from '../core/goals.js';
 import { GOAL_REMINDERS, SECTIONS, update } from '../core/state.js';
 import { prayerLocation } from '../ui/prayer-view.js';
+import ENCOURAGEMENT from '../data/reminders/encouragement.json';
 
 /** How many local days ahead reminders are scheduled. */
 export const DAYS_AHEAD = 7;
@@ -18,8 +19,9 @@ export const DAYS_AHEAD = 7;
  * @returns {{doneToday: {hifdh: boolean, murajaa: boolean, checklist: boolean}, hasChecklist: boolean}}
  */
 export function goalStatus(state, now) {
-  const items = update(state, () => {}).goals.items;
+  const { items, hifdhTarget, murajaaTarget } = update(state, () => {}).goals;
   return {
+    hasGoals: hifdhTarget > 0 || murajaaTarget > 0 || items.length > 0,
     doneToday: {
       hifdh: isHifdhDone(state, now),
       murajaa: isMurajaaDone(state, now),
@@ -47,6 +49,7 @@ export function planReminders(state, now, { days = DAYS_AHEAD, getTimes = getPra
     daily: ensureToday(state.daily, now),
     days,
     goals: goalStatus(state, now),
+    encouragement: { messages: ENCOURAGEMENT, name: settings.name, timeZone: location.timeZone },
     getTimes: (date) => {
       try {
         return getTimes(date, location) ?? {};
@@ -89,6 +92,9 @@ export function scheduleKey(state, now) {
     }),
     goalStatus(state, now),
     [location?.lat, location?.lng],
+    [reminders?.encouragement?.enabled, reminders?.encouragement?.perDay],
+    // The name is in the encouragement texts.
+    reminders?.encouragement?.enabled ? state.settings.name : null,
   ]);
 }
 
@@ -98,7 +104,7 @@ export function scheduleKey(state, now) {
  * @returns {string | null}
  */
 export function tapPath(section) {
-  if (section === 'lastThird') return '/';
+  if (section === 'lastThird' || section === 'encouragement') return '/';
   if (GOAL_REMINDERS.includes(section)) return '/quran';
   return SECTIONS.includes(section) ? `/adhkar/${section}` : null;
 }
