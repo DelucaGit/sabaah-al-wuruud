@@ -5,14 +5,12 @@
 // inputs never lose focus. Appearance is applied by main.js on store changes.
 import './settings.css';
 import { store } from '../adapters/storage.js';
-import { ACCENTS, ARABIC_SCALE, DEFAULT_STATE, THEMES } from '../core/state.js';
+import { ARABIC_SCALE, DEFAULT_STATE, THEMES } from '../core/state.js';
 import { setMemorizedUpTo, TOTAL_PAGES } from '../core/memorization.js';
 import { esc, icon } from './kit.js';
 import { version } from '../../package.json';
 
 const THEME_LABELS = { system: 'System', light: 'Light', dark: 'Dark' };
-// Fixed colours so each swatch shows its own accent whichever one is active.
-const ACCENT_COLORS = { lavender: '#7C4DAE', lilac: '#97489B', wisteria: '#5F51B5' };
 const MAX_NAME_LENGTH = 20;
 const MAX_OFFSET_MIN = 720;
 const OFFSET_STEP_MIN = 15;
@@ -58,10 +56,6 @@ export function render(rootEl) {
     };
 
     setValue('#set-name', settings.name);
-    $$('.settings-swatch').forEach((b) => {
-      b.setAttribute('aria-pressed', String(b.dataset.accent === 'lavender'));
-    });
-    $('#set-accent-name').textContent = capitalize('lavender');
     $$('[data-theme-mode]').forEach((b) => {
       b.setAttribute('aria-pressed', String(b.dataset.themeMode === settings.theme));
     });
@@ -98,12 +92,6 @@ export function render(rootEl) {
   $('#set-name').addEventListener('blur', () => fill(true));
 
   // --- look ----------------------------------------------------------------
-  $$('.settings-swatch').forEach((b) => {
-    b.addEventListener('click', () => {
-      const accent = b.dataset.accent;
-      if (ACCENTS.includes(accent)) save((s) => { s.settings.accent = accent; });
-    });
-  });
   $$('[data-theme-mode]').forEach((b) => {
     b.addEventListener('click', () => {
       const mode = b.dataset.themeMode;
@@ -203,10 +191,6 @@ function cleanName(raw) {
   return String(raw ?? '').trim().slice(0, MAX_NAME_LENGTH).trim();
 }
 
-function capitalize(word) {
-  return word.charAt(0).toUpperCase() + word.slice(1);
-}
-
 function switchHtml(key, label) {
   return `<button type="button" class="switch" role="switch" aria-checked="false" id="rem-${key}-on" aria-label="${esc(label)} reminder"></button>`;
 }
@@ -237,8 +221,6 @@ function offsetRow([key, label, prayer]) {
 }
 
 function template() {
-  const swatches = ACCENTS.map((accent) => `
-          <button type="button" class="settings-swatch" style="background:${ACCENT_COLORS[accent]}" data-accent="${accent}" aria-pressed="false" aria-label="${capitalize(accent)}">${icon('check')}</button>`).join('');
   const themes = THEMES.map((mode) => `
           <button type="button" data-theme-mode="${mode}" aria-pressed="false">${THEME_LABELS[mode]}</button>`).join('');
 
@@ -255,11 +237,6 @@ function template() {
 
     <p class="section-label" id="set-look">Look</p>
     <section class="card settings-group" aria-labelledby="set-look">
-      <div class="settings-row">
-        <span class="settings-grow">Colour<small id="set-accent-name"></small></span>
-        <span class="settings-swatches" role="group" aria-label="Accent colour">${swatches}
-        </span>
-      </div>
       <div class="settings-row settings-row--col">
         <span>Appearance</span>
         <div class="segmented" role="group" aria-label="Theme">${themes}

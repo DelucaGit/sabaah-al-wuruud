@@ -4,8 +4,6 @@ export const STATE_VERSION = 1;
 export const MAX_PAGE = 604;
 export const SECTIONS = ['morning', 'evening', 'sleep'];
 export const THEMES = ['system', 'light', 'dark'];
-// Kept only for the legacy picker in Settings (removed in #96); not persisted.
-export const ACCENTS = ['lavender', 'lilac', 'wisteria'];
 // Arabic text size multiplier chosen in Settings.
 export const ARABIC_SCALE = { min: 0.85, max: 1.45, default: 1 };
 const MAX_NAME_LENGTH = 20;

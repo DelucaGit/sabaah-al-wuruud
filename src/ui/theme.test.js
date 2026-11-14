@@ -35,22 +35,19 @@ describe('applyAppearance', () => {
     return { dataset: {}, props, style: { setProperty: (k, v) => { props[k] = v; } } };
   };
 
-  it('sets theme, accent and Arabic scale', () => {
+  it('sets theme and Arabic scale', () => {
     const root = styledRoot();
-    applyAppearance({ theme: 'dark', accent: 'wisteria', arabicScale: 1.2 }, root);
+    applyAppearance({ theme: 'dark', arabicScale: 1.2 }, root);
     expect(root.dataset.theme).toBe('dark');
-    expect(root.dataset.accent).toBe('wisteria');
     expect(root.props['--arabic-scale']).toBe('1.2');
   });
 
-  it('falls back to system, lavender and scale 1 for bad values', () => {
+  it('falls back to system and scale 1 for bad values', () => {
     const root = styledRoot();
-    applyAppearance({ theme: 'x', accent: 'green', arabicScale: 'big' }, root);
+    applyAppearance({ theme: 'x', arabicScale: 'big' }, root);
     expect(root.dataset.theme).toBe('system');
-    expect(root.dataset.accent).toBe('lavender');
     expect(root.props['--arabic-scale']).toBe('1');
     applyAppearance(undefined, root);
-    expect(root.dataset.accent).toBe('lavender');
   });
 
   it('does not throw without a document', () => {
