@@ -1,0 +1,408 @@
+{
+  "general": [
+    {
+      "id": "g01",
+      "text": "{name}, även små steg räknas."
+    },
+    {
+      "id": "g02",
+      "text": "Det du gör, hur lite det än känns, betyder något."
+    },
+    {
+      "id": "g03",
+      "text": "{name}, jag är stolt över dig. Varje dag."
+    },
+    {
+      "id": "g04",
+      "text": "Lite i dag är mer än inget i dag."
+    },
+    {
+      "id": "g05",
+      "text": "Du behöver inte göra allt. Bara nästa lilla sak."
+    },
+    {
+      "id": "g06",
+      "text": "{name}, din ansträngning syns, även när du själv inte ser den."
+    },
+    {
+      "id": "g07",
+      "text": "Ett steg i taget räcker gott."
+    },
+    {
+      "id": "g08",
+      "text": "Det är okej att gå långsamt. Det viktiga är att du fortsätter."
+    },
+    {
+      "id": "g09",
+      "text": "{name}, tänk på hur långt du redan har kommit."
+    },
+    {
+      "id": "g10",
+      "text": "Små stunder blir till stora saker när de får växa i lugn och ro."
+    },
+    {
+      "id": "g11",
+      "text": "Du gör det bättre än du tror, {name}."
+    },
+    {
+      "id": "g12",
+      "text": "Varje minut du ger är värd något."
+    },
+    {
+      "id": "g13",
+      "text": "Ingen perfektion behövs. Bara du, precis som du är."
+    },
+    {
+      "id": "g14",
+      "text": "{name}, det du bygger nu bygger du för dig själv. Det är fint."
+    },
+    {
+      "id": "g15",
+      "text": "Glöm inte att vara snäll mot dig själv i dag."
+    },
+    {
+      "id": "g16",
+      "text": "Även en trött dag kan rymma en liten seger."
+    },
+    {
+      "id": "g17",
+      "text": "{name}, du är uppskattad. Mer än du vet."
+    },
+    {
+      "id": "g18",
+      "text": "Det som känns litet i dag kan bli grunden för något stort."
+    },
+    {
+      "id": "g19",
+      "text": "Du får börja om när som helst. Varje stund är en ny början."
+    },
+    {
+      "id": "g20",
+      "text": "{name}, din vilja att försöka är redan något att vara stolt över."
+    },
+    {
+      "id": "g21",
+      "text": "Det är inte farten som räknas, utan att du är på väg."
+    },
+    {
+      "id": "g22",
+      "text": "Ta ett andetag. Du klarar mer än du tror."
+    },
+    {
+      "id": "g23",
+      "text": "{name}, någon tänker på dig just nu och är glad att du finns."
+    },
+    {
+      "id": "g24",
+      "text": "Lite varje dag blir mycket med tiden."
+    },
+    {
+      "id": "g25",
+      "text": "Du behöver inte känna dig redo. Det räcker att börja smått."
+    },
+    {
+      "id": "g26",
+      "text": "{name}, varje gång du väljer att försöka väljer du något fint."
+    },
+    {
+      "id": "g27",
+      "text": "Ditt tålamod med dig själv är också en styrka."
+    },
+    {
+      "id": "g28",
+      "text": "Små vanor bär långt. Du är på rätt väg."
+    },
+    {
+      "id": "g29",
+      "text": "Kom ihåg: den enda du behöver jämföra dig med är den du var i går."
+    },
+    {
+      "id": "g30",
+      "text": "{name}, du har kommit hit. Det är inte lite."
+    },
+    {
+      "id": "g31",
+      "text": "Det du gör i det tysta räknas lika mycket."
+    },
+    {
+      "id": "g32",
+      "text": "En liten insats med hela hjärtat är värd mycket."
+    },
+    {
+      "id": "g33",
+      "text": "{name}, du får vara stolt över dig själv i dag."
+    },
+    {
+      "id": "g34",
+      "text": "Det finns ingen början som är för liten."
+    },
+    {
+      "id": "g35",
+      "text": "Fortsätt i din egen takt. Den är precis rätt."
+    }
+  ],
+  "goalDone": [
+    {
+      "id": "d01",
+      "text": "{name}, du gjorde det! Dagens mål är klart."
+    },
+    {
+      "id": "d02",
+      "text": "Klart för i dag. Var stolt, du förtjänar det."
+    },
+    {
+      "id": "d03",
+      "text": "Vad fint, {name}. Ännu ett mål i hamn."
+    },
+    {
+      "id": "d04",
+      "text": "Litet eller stort, du fullföljde det. Det är det som räknas."
+    },
+    {
+      "id": "d05",
+      "text": "{name}, jag är så glad för din skull i dag."
+    },
+    {
+      "id": "d06",
+      "text": "Där satt den. Bra jobbat!"
+    },
+    {
+      "id": "d07",
+      "text": "Du höll ditt löfte till dig själv i dag. Det är stort."
+    },
+    {
+      "id": "d08",
+      "text": "{name}, se vad du klarade! Ta en stund och känn efter."
+    },
+    {
+      "id": "d09",
+      "text": "Ännu en dag där du valde att göra det. Snyggt."
+    },
+    {
+      "id": "d10",
+      "text": "Mål uppnått. Nu kan du andas ut."
+    },
+    {
+      "id": "d11",
+      "text": "{name}, det här är precis så framsteg ser ut."
+    },
+    {
+      "id": "d12",
+      "text": "Varje klart mål är en liten byggsten. I dag lade du en till."
+    },
+    {
+      "id": "d13",
+      "text": "Du gjorde det, och du gjorde det i din egen takt. Perfekt."
+    },
+    {
+      "id": "d14",
+      "text": "{name}, du är fantastisk. Dagens mål är avklarat."
+    },
+    {
+      "id": "d15",
+      "text": "Ett litet mål som är klart är fortfarande ett mål som är klart. Bra gjort!"
+    },
+    {
+      "id": "d16",
+      "text": "Tack för att du gav dig själv den här stunden i dag."
+    },
+    {
+      "id": "d17",
+      "text": "{name}, din insats i dag gör skillnad."
+    },
+    {
+      "id": "d18",
+      "text": "Klart! Resten av dagen får vara lätt."
+    },
+    {
+      "id": "d19",
+      "text": "Du dök upp för dig själv i dag. Det är värt att fira."
+    },
+    {
+      "id": "d20",
+      "text": "{name}, en dag i taget, och i dag blev det en bra en."
+    },
+    {
+      "id": "d21",
+      "text": "Så stolt över dig. Verkligen."
+    },
+    {
+      "id": "d22",
+      "text": "Ännu ett mål bakom dig. Du växer, steg för steg."
+    },
+    {
+      "id": "d23",
+      "text": "{name}, det spelar ingen roll hur stort det var. Du gjorde det."
+    },
+    {
+      "id": "d24",
+      "text": "Fint jobbat i dag. Ge dig själv en klapp på axeln."
+    },
+    {
+      "id": "d25",
+      "text": "Du hittade tiden, även en dag som denna. Imponerande."
+    },
+    {
+      "id": "d26",
+      "text": "{name}, dagens mål: klart. Dagens känsla: välförtjänt stolthet."
+    },
+    {
+      "id": "d27",
+      "text": "Det du gjorde i dag kommer du att vara glad för i morgon."
+    },
+    {
+      "id": "d28",
+      "text": "Bra, {name}. Lugnt och fint, precis som det ska vara."
+    },
+    {
+      "id": "d29",
+      "text": "Varje gång du gör klart ett mål blir nästa lite lättare."
+    },
+    {
+      "id": "d30",
+      "text": "{name}, du gjorde din del i dag. Nu får du vila."
+    },
+    {
+      "id": "d31",
+      "text": "Klart och fint. Den här dagen räknas."
+    },
+    {
+      "id": "d32",
+      "text": "Du är på väg, och det märks. Bra jobbat!"
+    },
+    {
+      "id": "d33",
+      "text": "{name}, ditt tålamod lönar sig. Dagens mål är nått."
+    }
+  ],
+  "goalPending": [
+    {
+      "id": "p01",
+      "text": "{name}, även två minuter räknas. Vill du ta en liten stund nu?"
+    },
+    {
+      "id": "p02",
+      "text": "En sida är fortfarande en sida."
+    },
+    {
+      "id": "p03",
+      "text": "Ingen stress. Dagens mål väntar på dig när du är redo."
+    },
+    {
+      "id": "p04",
+      "text": "{name}, lite är bättre än inget. Och lite räcker gott i dag."
+    },
+    {
+      "id": "p05",
+      "text": "Har du en minut över? Det kan vara precis vad som behövs."
+    },
+    {
+      "id": "p06",
+      "text": "Du behöver inte göra allt. Börja bara med en liten bit."
+    },
+    {
+      "id": "p07",
+      "text": "{name}, dagen är inte slut än. Det finns tid för ett litet steg."
+    },
+    {
+      "id": "p08",
+      "text": "Det är okej om det blir mindre i dag. Mindre är också bra."
+    },
+    {
+      "id": "p09",
+      "text": "Ett litet steg nu kan kännas skönt i kväll."
+    },
+    {
+      "id": "p10",
+      "text": "{name}, hur kort stunden än blir så räknas den."
+    },
+    {
+      "id": "p11",
+      "text": "Inget krav, bara en vänlig påminnelse: ditt mål finns kvar här."
+    },
+    {
+      "id": "p12",
+      "text": "Fem minuter i soffan med en kopp te? Det räcker."
+    },
+    {
+      "id": "p13",
+      "text": "{name}, du behöver inte känna för det. Börja smått och se vad som händer."
+    },
+    {
+      "id": "p14",
+      "text": "Det är aldrig för sent för en liten stund."
+    },
+    {
+      "id": "p15",
+      "text": "Om dagen har varit tung, gör bara lite. Det är mer än nog."
+    },
+    {
+      "id": "p16",
+      "text": "{name}, en enda rad är också en början."
+    },
+    {
+      "id": "p17",
+      "text": "Ditt mål är ingen plikt. Det är en present till dig själv."
+    },
+    {
+      "id": "p18",
+      "text": "Kanske en liten stund innan nästa sak? Bara om det passar."
+    },
+    {
+      "id": "p19",
+      "text": "{name}, du har gjort det förut och du kan göra det i dag, i liten skala."
+    },
+    {
+      "id": "p20",
+      "text": "Ingen skuld här. Bara en mjuk knuff: två minuter?"
+    },
+    {
+      "id": "p21",
+      "text": "Ibland är det svåraste att bara öppna appen. Resten blir lättare."
+    },
+    {
+      "id": "p22",
+      "text": "{name}, ett halvt steg är också ett steg."
+    },
+    {
+      "id": "p23",
+      "text": "Du bestämmer takten. Även lite i dag gör skillnad."
+    },
+    {
+      "id": "p24",
+      "text": "Om du bara orkar en minut, så är en minut perfekt."
+    },
+    {
+      "id": "p25",
+      "text": "{name}, ditt mål väntar tålmodigt. Ingen brådska."
+    },
+    {
+      "id": "p26",
+      "text": "Små stunder bär långt. Har du en sådan nu?"
+    },
+    {
+      "id": "p27",
+      "text": "Det gör inget att det inte blivit av än. Det finns fortfarande tid."
+    },
+    {
+      "id": "p28",
+      "text": "{name}, prova bara att börja. Du får sluta när du vill."
+    },
+    {
+      "id": "p29",
+      "text": "Hellre lite och lugnt än inget alls. Du klarar det."
+    },
+    {
+      "id": "p30",
+      "text": "En liten bit i dag håller tråden vid liv."
+    },
+    {
+      "id": "p31",
+      "text": "{name}, du ligger inte efter. Du är precis där du är, och det är okej."
+    },
+    {
+      "id": "p32",
+      "text": "Om inte nu, kanske senare? Ditt mål finns kvar när du är redo."
+    }
+  ]
+}
