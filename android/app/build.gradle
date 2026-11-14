@@ -17,8 +17,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         // Raise versionCode by 1 for EVERY build sent to Aisha, or the update
         // will not install over the old app. Never change applicationId.
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
