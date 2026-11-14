@@ -3,11 +3,31 @@
 import { buildSchedule } from '../core/reminders.js';
 import { dayKey, ensureToday } from '../core/daily.js';
 import { getNightTimes, getPrayerTimes } from '../core/prayer.js';
-import { SECTIONS } from '../core/state.js';
+import { isChecklistDone, isHifdhDone, isMurajaaDone } from '../core/goals.js';
+import { GOAL_REMINDERS, SECTIONS, update } from '../core/state.js';
 import { prayerLocation } from '../ui/prayer-view.js';
 
 /** How many local days ahead reminders are scheduled. */
 export const DAYS_AHEAD = 7;
+
+/**
+ * Today's Quran goal status for the reminder schedule. The checklist counts as
+ * done once every item is ticked; with no items there is nothing to remind.
+ * @param {object} state
+ * @param {Date} now
+ * @returns {{doneToday: {hifdh: boolean, murajaa: boolean, checklist: boolean}, hasChecklist: boolean}}
+ */
+export function goalStatus(state, now) {
+  const items = update(state, () => {}).goals.items;
+  return {
+    doneToday: {
+      hifdh: isHifdhDone(state, now),
+      murajaa: isMurajaaDone(state, now),
+      checklist: items.length > 0 && items.every((i) => isChecklistDone(state, i.id, now)),
+    },
+    hasChecklist: items.length > 0,
+  };
+}
 
 /**
  * The notifications to schedule for `state` at `now`.
@@ -26,6 +46,7 @@ export function planReminders(state, now, { days = DAYS_AHEAD, getTimes = getPra
     settings,
     daily: ensureToday(state.daily, now),
     days,
+    goals: goalStatus(state, now),
     getTimes: (date) => {
       try {
         return getTimes(date, location) ?? {};
@@ -62,6 +83,11 @@ export function scheduleKey(state, now) {
       return [r.enabled, r.prayer, r.offsetMin, r.time];
     }),
     reminders?.lastThird?.enabled === true,
+    GOAL_REMINDERS.map((g) => {
+      const r = reminders?.[g] ?? {};
+      return [r.enabled, r.mode, r.prayer, r.offsetMin, r.time];
+    }),
+    goalStatus(state, now),
     [location?.lat, location?.lng],
   ]);
 }
@@ -73,5 +99,6 @@ export function scheduleKey(state, now) {
  */
 export function tapPath(section) {
   if (section === 'lastThird') return '/';
+  if (GOAL_REMINDERS.includes(section)) return '/quran';
   return SECTIONS.includes(section) ? `/adhkar/${section}` : null;
 }
