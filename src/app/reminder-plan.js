@@ -2,7 +2,7 @@
 // matters, and where a notification tap leads. No DOM, no plugins.
 import { buildSchedule } from '../core/reminders.js';
 import { dayKey, ensureToday } from '../core/daily.js';
-import { getPrayerTimes } from '../core/prayer.js';
+import { getNightTimes, getPrayerTimes } from '../core/prayer.js';
 import { SECTIONS } from '../core/state.js';
 import { prayerLocation } from '../ui/prayer-view.js';
 
@@ -15,10 +15,10 @@ export const DAYS_AHEAD = 7;
  * their prayer-based reminders; the sleep reminder is still scheduled.
  * @param {object} state  App state (see ../core/state.js).
  * @param {Date} now
- * @param {{ days?: number, getTimes?: (date: Date, location: object) => object }} [options]
+ * @param {{ days?: number, getTimes?: (date: Date, location: object) => object, getNight?: (date: Date, location: object) => object }} [options]
  * @returns {{id: number, at: Date, title: string, body: string, section: string}[]}
  */
-export function planReminders(state, now, { days = DAYS_AHEAD, getTimes = getPrayerTimes } = {}) {
+export function planReminders(state, now, { days = DAYS_AHEAD, getTimes = getPrayerTimes, getNight = getNightTimes } = {}) {
   const settings = state.settings;
   const location = prayerLocation(settings);
   return buildSchedule({
@@ -29,6 +29,13 @@ export function planReminders(state, now, { days = DAYS_AHEAD, getTimes = getPra
     getTimes: (date) => {
       try {
         return getTimes(date, location) ?? {};
+      } catch {
+        return {};
+      }
+    },
+    getNight: (date) => {
+      try {
+        return getNight(date, location) ?? {};
       } catch {
         return {};
       }
@@ -54,6 +61,7 @@ export function scheduleKey(state, now) {
       const r = reminders?.[s] ?? {};
       return [r.enabled, r.prayer, r.offsetMin, r.time];
     }),
+    reminders?.lastThird?.enabled === true,
     [location?.lat, location?.lng],
   ]);
 }
@@ -64,5 +72,6 @@ export function scheduleKey(state, now) {
  * @returns {string | null}
  */
 export function tapPath(section) {
+  if (section === 'lastThird') return '/';
   return SECTIONS.includes(section) ? `/adhkar/${section}` : null;
 }

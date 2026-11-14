@@ -12,10 +12,12 @@ const MS_PER_MINUTE = 60 * 1000;
 
 const TITLE = 'Nuh';
 const PRAYER_BODY = 'Har du läst dina adhkaar?';
+const LAST_THIRD_TITLE = 'Sista tredjedelen';
+const LAST_THIRD_BODY = 'Natten är stilla. En lugn stund för tahajjud och dua.';
 const SLEEP_BODY = 'Shawshat qurban. Glöm inte adhkaar';
 
 // Suffix of the deterministic id: yyyymmdd * 10 + SECTION_INDEX[section].
-const SECTION_INDEX = { morning: 1, evening: 2, sleep: 3 };
+const SECTION_INDEX = { morning: 1, evening: 2, sleep: 3, lastThird: 4 };
 
 // Prayer used when a prayer reminder's settings lack one.
 const DEFAULT_PRAYER = { morning: 'fajr', evening: 'asr' };
@@ -44,9 +46,10 @@ function atLocalTime(day, time) {
  * @param {object} args.daily     Daily state (see ./daily.js).
  * @param {number} [args.days=7]
  * @param {(date: Date) => Record<string, Date>} args.getTimes  Prayer times for the day containing `date`.
+ * @param {(date: Date) => {lastThirdStart: Date}} [args.getNight]  Night times after the day containing `date`; needed for the optional last-third reminder.
  * @returns {{id: number, at: Date, title: string, body: string, section: string}[]}
  */
-export function buildSchedule({ now, settings, daily, days = 7, getTimes }) {
+export function buildSchedule({ now, settings, daily, days = 7, getTimes, getNight }) {
   const reminders = settings?.reminders ?? {};
   const nowMs = now.getTime();
   const out = [];
@@ -56,6 +59,14 @@ export function buildSchedule({ now, settings, daily, days = 7, getTimes }) {
     const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i, 12);
     const isToday = i === 0;
     let times = null;
+
+    // Optional, off by default: the night that starts on this day's Maghrib.
+    if (reminders.lastThird?.enabled === true && getNight) {
+      const at = getNight(day)?.lastThirdStart;
+      if (at && at.getTime() > nowMs) {
+        out.push({ id: reminderId(day, 'lastThird'), at, title: LAST_THIRD_TITLE, body: LAST_THIRD_BODY, section: 'lastThird' });
+      }
+    }
 
     for (const section of ['morning', 'evening', 'sleep']) {
       const cfg = reminders[section];

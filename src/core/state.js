@@ -31,6 +31,7 @@ export const DEFAULT_STATE = deepFreeze({
       morning: { enabled: true, prayer: 'fajr', offsetMin: 60 },
       evening: { enabled: true, prayer: 'asr', offsetMin: 60 },
       sleep: { enabled: true, time: '22:00' },
+      lastThird: { enabled: false },
     },
   },
   progress: { memorizedUpTo: 0 },
@@ -72,6 +73,11 @@ export function migrate(raw) {
         morning: prayerReminder(reminders.morning, d.settings.reminders.morning),
         evening: prayerReminder(reminders.evening, d.settings.reminders.evening),
         sleep: timeReminder(reminders.sleep, d.settings.reminders.sleep),
+        lastThird: {
+          enabled: typeof obj(reminders.lastThird).enabled === 'boolean'
+            ? reminders.lastThird.enabled
+            : d.settings.reminders.lastThird.enabled,
+        },
       },
     },
     progress: {

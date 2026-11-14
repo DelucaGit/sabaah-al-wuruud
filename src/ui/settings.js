@@ -72,6 +72,8 @@ export function render(rootEl) {
       else setValue(`#rem-${key}-offset`, r.offsetMin);
     }
 
+    $('#rem-lastThird-on').setAttribute('aria-checked', String(settings.reminders.lastThird.enabled === true));
+
     setValue('#mem-page', progress.memorizedUpTo);
     setValue('#loc-name', settings.location.name);
     setValue('#loc-lat', settings.location.lat);
@@ -112,6 +114,9 @@ export function render(rootEl) {
       save((s) => { s.settings.reminders[key].enabled = !s.settings.reminders[key].enabled; });
     });
   }
+  $('#rem-lastThird-on').addEventListener('click', () => {
+    save((s) => { s.settings.reminders.lastThird.enabled = !s.settings.reminders.lastThird.enabled; });
+  });
   for (const [key] of PRAYER_REMINDERS) {
     const setOffset = (n) => {
       const minutes = clamp(Math.round(n), 0, MAX_OFFSET_MIN);
@@ -256,6 +261,10 @@ function template() {
         <span class="settings-grow">Before Sleep<small>Every night</small></span>
         <input class="settings-field settings-field--time" type="time" id="rem-sleep-time" aria-label="Sleep reminder time">
         ${switchHtml('sleep', 'Before Sleep')}
+      </div>
+      <div class="settings-row" id="rem-lastThird">
+        <span class="settings-grow">Last third of the night<small>A gentle nudge for tahajjud and dua &middot; off by default</small></span>
+        ${switchHtml('lastThird', 'Last third of the night')}
       </div>
     </section>
 
