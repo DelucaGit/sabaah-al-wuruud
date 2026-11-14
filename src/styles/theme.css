@@ -1,7 +1,5 @@
 /*
- * Design tokens. Lavender is the default accent; Settings can switch to two
- * neighbouring shades via [data-accent] (set by applyAppearance() in
- * src/ui/theme.js). The light palette is the default; the dark palette applies
+ * Design tokens. Lavender is the only palette. The light palette is the default; the dark palette applies
  * under [data-theme="dark"], and under [data-theme="system"] (or no attribute)
  * when the OS prefers dark.
  *
@@ -41,28 +39,8 @@
   --space-7: 48px;
 }
 
-:root[data-accent="lilac"] {
-  --color-primary: #97489B;
-  --color-lavender: #D596D4;
-  --color-primary-soft: #F8E6F6;
-  --color-primary-softer: #FCF2FB;
-  --color-bg: #FEF8FD;
-  --color-border: #F1DDEF;
-  --gradient-primary: linear-gradient(155deg, #C583C6 0%, #8E4093 100%);
-}
-
-:root[data-accent="wisteria"] {
-  --color-primary: #5F51B5;
-  --color-lavender: #A096E8;
-  --color-primary-soft: #E8E5FA;
-  --color-primary-softer: #F2F0FD;
-  --color-bg: #F9F8FE;
-  --color-border: #DFDCF4;
-  --gradient-primary: linear-gradient(155deg, #8F85DD 0%, #5546A8 100%);
-}
-
-/* Dark palettes. Keep the three [data-theme="dark"] blocks and the three
-   system blocks in the media query below identical. */
+/* Dark palettes. Keep the [data-theme="dark"] block and the system
+   block in the media query below identical. */
 :root[data-theme="dark"] {
   color-scheme: dark;
 
@@ -79,24 +57,6 @@
   --color-border: #3B2E4D;
   --gradient-primary: linear-gradient(155deg, #7C55B0 0%, #4E2F7C 100%);
   --shadow-card: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px -12px rgba(0, 0, 0, .5);
-}
-
-:root[data-theme="dark"][data-accent="lilac"] {
-  --color-primary: #E7B0E6;
-  --color-lavender: #B272B2;
-  --color-primary-soft: #4A2B4B;
-  --color-primary-softer: #38223A;
-  --color-border: #4B2F4C;
-  --gradient-primary: linear-gradient(155deg, #9A559C 0%, #672C6B 100%);
-}
-
-:root[data-theme="dark"][data-accent="wisteria"] {
-  --color-primary: #BDB4F5;
-  --color-lavender: #7F74CF;
-  --color-primary-soft: #2F2B52;
-  --color-primary-softer: #26233F;
-  --color-border: #35315A;
-  --gradient-primary: linear-gradient(155deg, #6558B8 0%, #3D3285 100%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -117,26 +77,6 @@
     --color-border: #3B2E4D;
     --gradient-primary: linear-gradient(155deg, #7C55B0 0%, #4E2F7C 100%);
     --shadow-card: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px -12px rgba(0, 0, 0, .5);
-  }
-
-  :root[data-theme="system"][data-accent="lilac"],
-  :root:not([data-theme])[data-accent="lilac"] {
-    --color-primary: #E7B0E6;
-    --color-lavender: #B272B2;
-    --color-primary-soft: #4A2B4B;
-    --color-primary-softer: #38223A;
-    --color-border: #4B2F4C;
-    --gradient-primary: linear-gradient(155deg, #9A559C 0%, #672C6B 100%);
-  }
-
-  :root[data-theme="system"][data-accent="wisteria"],
-  :root:not([data-theme])[data-accent="wisteria"] {
-    --color-primary: #BDB4F5;
-    --color-lavender: #7F74CF;
-    --color-primary-soft: #2F2B52;
-    --color-primary-softer: #26233F;
-    --color-border: #35315A;
-    --gradient-primary: linear-gradient(155deg, #6558B8 0%, #3D3285 100%);
   }
 }
 

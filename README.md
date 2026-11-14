@@ -12,7 +12,7 @@ Four tabs in a bottom bar, all reachable with one thumb:
 - **Today**: greeting, date and Hijri date, a prayer dial with the next prayer and countdown, the five prayer times, and the verse with its tafsir
 - **Adhkar**: "Your day" timeline of prayers and the Morning, Evening and Before Sleep sections in day order, the current one highlighted; Istikhara under "Anytime"
 - **Qur'an**: registers a memorized page (count, progress bar, "I memorized page X", undo)
-- **Me**: name, accent shade, theme, Arabic text size, reminders, memorized page, location, about
+- **Me**: name, theme, Arabic text size, reminders, memorized page, location, about
 
 Opening a section shows the reader: one dhikr per full-height card that snaps into place, a "read" action, progress per section (marked done when everything is read) and a tap counter on the 100x adhkar.
 
