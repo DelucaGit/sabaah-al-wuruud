@@ -16,25 +16,29 @@
 import './figure.css';
 import { ENTRANCE_MS, figurePhase, catchUpTime } from '../core/figure.js';
 
-// viewBox 48 x 52, the ground is y = 52. Two poses, one on top of the other.
+// viewBox 48 x 52, the ground is y = 52. ONE body in both poses (#150): the
+// same head, headscarf and long garment. Standing is the drawing as it is;
+// sitting down moves the same parts (figure.css): the head and scarf lower
+// unchanged, the garment folds down and its hem spreads out on the ground.
 const FIGURE_SVG = `<svg class="figure" viewBox="0 0 48 52" focusable="false" aria-hidden="true">
   <g class="figure__walker">
-    <g class="figure__stand">
+    <g class="figure__breath">
       <g class="figure__step"><g transform="translate(24 52) scale(1.12) translate(-24 -52)">
         <path class="figure__foot figure__foot--a" d="M23 49.6h4.4c1.3 0 2.2.9 2.2 2.4H23Z"/>
         <path class="figure__foot figure__foot--b" d="M23 49.6h4.4c1.3 0 2.2.9 2.2 2.4H23Z"/>
-        <path class="figure__robe figure__skirt" d="M18 24C17.4 34 15.6 44 13.4 50.6C13.1 51.5 13.7 52 14.5 52H33.5C34.3 52 34.9 51.5 34.6 50.6C32.4 44 30.6 34 30 24Z"/>
-        <path class="figure__veil" d="M24 9.6C27 9.6 28.8 11.8 28.8 14.6C28.8 16.8 29.4 18.4 30.6 19.8C32.2 21.7 32.8 25 32.4 30.4C29.4 32 18.6 32 15.6 30.4C15.2 25 15.8 21.7 17.4 19.8C18.6 18.4 19.2 16.8 19.2 14.6C19.2 11.8 21 9.6 24 9.6Z"/>
+        <g class="figure__lower">
+          <path class="figure__robe figure__skirt" d="M18 24C17.4 34 15.6 44 13.4 50.6C13.1 51.5 13.7 52 14.5 52H33.5C34.3 52 34.9 51.5 34.6 50.6C32.4 44 30.6 34 30 24Z"/>
+        </g>
+        <g class="figure__pool">
+          <path class="figure__robe figure__hem" d="M10.4 47.4C8.2 48 6 49.5 4.8 51.2C4.5 51.7 4.8 52 5.3 52H12.4Z"/>
+          <path class="figure__robe" d="M24 40.6C18.6 40.6 13 43.2 9.8 46.5C7.8 48.5 6.8 50 7.2 51C7.4 51.7 8.2 52 9.2 52H38.8C39.8 52 40.6 51.7 40.8 51C41.2 50 40.2 48.5 38.2 46.5C35 43.2 29.4 40.6 24 40.6Z"/>
+        </g>
+        <g class="figure__upper">
+          <path class="figure__veil figure__tail" d="M16.2 25.4C14.8 26.6 13.6 28.4 13 30.6C15 30.4 17 29.6 18.6 28.2Z"/>
+          <path class="figure__veil" d="M19.4 14C19.4 16.8 18.6 18.4 17.4 19.8C15.8 21.7 15.2 25 15.6 30.4C18.6 32 29.4 32 32.4 30.4C32.8 25 32.2 21.7 30.6 19.8C29.4 18.4 28.6 16.8 28.6 14Z"/>
+          <ellipse class="figure__veil figure__head" cx="24" cy="14.6" rx="4.8" ry="5"/>
+        </g>
       </g></g>
-    </g>
-  </g>
-  <g class="figure__seat">
-    <g class="figure__breath">
-      <path class="figure__robe figure__hem" d="M9.5 47.4C7 48 4.6 49.4 3.2 51.2C2.9 51.7 3.2 52 3.7 52H12Z"/>
-      <path class="figure__robe" d="M15 37C14.2 40.6 12.4 43 9.8 45C7.6 46.6 6.6 48.6 6.8 50.2C7 51.4 8 52 9.4 52H38.6C40 52 41 51.4 41.2 50.2C41.4 48.6 40.4 46.6 38.2 45C35.6 43 33.8 40.6 33 37Z"/>
-      <path class="figure__veil figure__tail" d="M16.4 40C14.4 41.4 12.6 43.4 11.4 46C13.8 45.6 16.4 44.6 18.6 43Z"/>
-      <path class="figure__veil" d="M19.6 29.4C18.4 31.2 15.6 32.4 15 35.6C14.6 37.8 14.6 40 14.8 42C18 44.6 30 44.6 33.2 42C33.4 40 33.4 37.8 33 35.6C32.4 32.4 29.6 31.2 28.4 29.4Z"/>
-      <ellipse class="figure__veil figure__head" cx="24" cy="26" rx="5.1" ry="5.5"/>
     </g>
   </g>
 </svg>`;
