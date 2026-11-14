@@ -3,7 +3,7 @@
 // with its tafsir from the last memorized page.
 import './today.css';
 import { store } from '../adapters/storage.js';
-import { nextPrayer } from '../core/prayer.js';
+import { nextPrayer, getNightTimes } from '../core/prayer.js';
 import { pickReflectionVerse } from '../core/memorization.js';
 import { navigate } from '../router.js';
 import { esc, icon } from './kit.js';
@@ -117,6 +117,21 @@ function timesRowHtml(times, next, settings) {
   return `<ul class="today-times" aria-label="Today's prayer times">${items}</ul>`;
 }
 
+/** Middle of the night and the last third, with a tahajjud hint. */
+function nightRowsHtml(now, settings) {
+  let night;
+  try {
+    night = getNightTimes(now, prayerLocation(settings));
+  } catch {
+    return '';
+  }
+  if (!night || Number.isNaN(night.middle.getTime())) return '';
+  return `<ul class="today-night" aria-label="The night">
+    <li class="today-night__row"><span>Middle of the night</span><b>${esc(formatTime(night.middle, settings))}</b></li>
+    <li class="today-night__row today-night__row--best"><span>Last third<small>Best time for tahajjud and dua</small></span><b>${esc(formatTime(night.lastThirdStart, settings))}</b></li>
+  </ul>`;
+}
+
 function prayersHtml(settings, now) {
   const times = todayPrayerTimes(settings, now);
   const next = times ? findNext(settings, now) : null;
@@ -126,7 +141,7 @@ function prayersHtml(settings, now) {
       <a class="today-link" href="#/settings">Change location in Me ${icon('arrow')}</a>
     </section>`;
   }
-  return dialHtml(times, next, now, settings) + timesRowHtml(times, next, settings);
+  return dialHtml(times, next, now, settings) + timesRowHtml(times, next, settings) + nightRowsHtml(now, settings);
 }
 
 const REFLECTION_LABEL = "Today's reflection";
