@@ -4,6 +4,7 @@ export const STATE_VERSION = 1;
 export const MAX_PAGE = 604;
 export const SECTIONS = ['morning', 'evening', 'sleep'];
 export const THEMES = ['system', 'light', 'dark'];
+// Kept only for the legacy picker in Settings (removed in #96); not persisted.
 export const ACCENTS = ['lavender', 'lilac', 'wisteria'];
 // Arabic text size multiplier chosen in Settings.
 export const ARABIC_SCALE = { min: 0.85, max: 1.45, default: 1 };
@@ -22,7 +23,6 @@ export const DEFAULT_STATE = deepFreeze({
   settings: {
     name: 'Aisha',
     theme: 'system',
-    accent: 'lavender',
     arabicScale: ARABIC_SCALE.default,
     location: { name: 'Cairo', lat: 30.0444, lng: 31.2357 },
     method: 'Egyptian',
@@ -60,7 +60,6 @@ export function migrate(raw) {
     settings: {
       name: nonEmptyString(settings.name, d.settings.name).trim().slice(0, MAX_NAME_LENGTH),
       theme: oneOf(settings.theme, THEMES, d.settings.theme),
-      accent: oneOf(settings.accent, ACCENTS, d.settings.accent),
       arabicScale: numberIn(settings.arabicScale, ARABIC_SCALE.min, ARABIC_SCALE.max, d.settings.arabicScale),
       location: {
         name: nonEmptyString(location.name, d.settings.location.name),

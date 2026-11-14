@@ -8,7 +8,6 @@ describe('DEFAULT_STATE', () => {
       settings: {
         name: 'Aisha',
         theme: 'system',
-        accent: 'lavender',
         arabicScale: 1,
         location: { name: 'Cairo', lat: 30.0444, lng: 31.2357 },
         method: 'Egyptian',
@@ -89,7 +88,6 @@ describe('migrate', () => {
     const settings = {
       name: 'Aisha N.',
       theme: 'light',
-      accent: 'wisteria',
       arabicScale: 1.25,
       location: { name: 'Alexandria', lat: 31.2, lng: 29.9 },
       method: 'MuslimWorldLeague',
@@ -186,10 +184,9 @@ describe('update', () => {
 });
 
 describe('personal settings', () => {
-  it('falls back to the defaults for invalid name, accent and Arabic size', () => {
+  it('falls back to the defaults for invalid name and Arabic size', () => {
     const { settings } = migrate({ settings: { name: '   ', accent: 'green', arabicScale: 9 } });
     expect(settings.name).toBe('Aisha');
-    expect(settings.accent).toBe('lavender');
     expect(settings.arabicScale).toBe(1);
   });
 
@@ -203,6 +200,19 @@ describe('personal settings', () => {
     const { settings } = migrate(old);
     expect(settings.theme).toBe('dark');
     expect(settings.location.name).toBe('Giza');
-    expect(settings.accent).toBe('lavender');
+    expect(settings).not.toHaveProperty('accent');
+  });
+
+  it.each(['lilac', 'wisteria', 'lavender', 'green', 42, null])(
+    'drops a saved accent (%s) so every old state ends up lavender-only',
+    (accent) => {
+      const { settings } = migrate({ version: 1, settings: { theme: 'dark', accent } });
+      expect(settings).not.toHaveProperty('accent');
+      expect(settings.theme).toBe('dark');
+    },
+  );
+
+  it('has no accent in the defaults', () => {
+    expect(DEFAULT_STATE.settings).not.toHaveProperty('accent');
   });
 });

@@ -59,9 +59,9 @@ export function render(rootEl) {
 
     setValue('#set-name', settings.name);
     $$('.settings-swatch').forEach((b) => {
-      b.setAttribute('aria-pressed', String(b.dataset.accent === settings.accent));
+      b.setAttribute('aria-pressed', String(b.dataset.accent === 'lavender'));
     });
-    $('#set-accent-name').textContent = capitalize(settings.accent);
+    $('#set-accent-name').textContent = capitalize('lavender');
     $$('[data-theme-mode]').forEach((b) => {
       b.setAttribute('aria-pressed', String(b.dataset.themeMode === settings.theme));
     });
