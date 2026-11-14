@@ -26,66 +26,12 @@
   color: var(--color-muted);
 }
 
-/* ---------- prayer dial ---------- */
+/* ---------- prayers (the dial itself is in prayer-dial.css) ---------- */
 .today-prayers {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
-
-.today-dial {
-  position: relative;
-  padding: 16px 14px 14px;
-}
-.today-dial svg {
-  display: block;
-  width: 100%;
-  max-width: 340px;
-  height: auto;
-  margin: 0 auto;
-}
-.today-dial__track,
-.today-dial__fill {
-  fill: none;
-  stroke-width: 8;
-  stroke-linecap: round;
-}
-.today-dial__track { stroke: var(--color-primary-soft); }
-.today-dial__fill { stroke: var(--color-primary); }
-.today-dial__mark {
-  fill: var(--color-surface);
-  stroke: var(--color-lavender);
-  stroke-width: 2;
-}
-.today-dial__mark--next {
-  fill: var(--color-primary);
-  stroke: var(--color-surface);
-}
-.today-dial__now {
-  fill: var(--color-surface);
-  stroke: var(--color-primary);
-  stroke-width: 4;
-}
-.today-dial__center {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 18px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  pointer-events: none;
-}
-.today-dial__center strong {
-  font-family: 'Amiri', Georgia, serif;
-  font-weight: 400;
-  font-size: 2.2rem;
-  line-height: 1.15;
-  color: var(--color-text);
-}
-.today-dial__center .muted { font-size: .9rem; font-variant-numeric: tabular-nums; }
-.today-dial__center b { color: var(--color-primary); }
 
 /* ---------- five prayer times ---------- */
 .today-times {

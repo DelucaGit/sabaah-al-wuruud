@@ -1,0 +1,127 @@
+/* Today prayer dial: a full 24-hour ring (markup in prayer-dial.js).
+ *
+ * Every colour of the dial goes through a --dial-* variable. By default they
+ * follow the theme tokens (light and dark). When the dial sits on a very dark
+ * background (e.g. the night scene behind the card) set
+ *   data-dial-tone="dark"
+ * on the card or on ANY ancestor (the card itself is re-rendered, so an
+ * ancestor such as .today-prayers is the safer place) to switch the ring to
+ * light-on-dark. data-dial-tone="light" forces dark-on-light the same way. */
+
+.today-dial {
+  --dial-track: var(--color-primary-soft);
+  --dial-active: var(--color-primary);
+  --dial-dot-fill: var(--color-surface);
+  --dial-dot-stroke: var(--color-lavender);
+  --dial-now-fill: var(--color-surface);
+  --dial-now-stroke: var(--color-primary);
+  --dial-label: var(--color-muted);
+  --dial-label-strong: var(--color-primary);
+  --dial-text: var(--color-text);
+  --dial-text-muted: var(--color-muted);
+  position: relative;
+  padding: 10px 8px;
+}
+
+[data-dial-tone="dark"] .today-dial,
+.today-dial[data-dial-tone="dark"] {
+  --dial-track: rgba(233, 219, 250, .26);
+  --dial-active: #D9BDF7;
+  --dial-dot-fill: #2A1F3A;
+  --dial-dot-stroke: #B99BE0;
+  --dial-now-fill: #FFFFFF;
+  --dial-now-stroke: #D9BDF7;
+  --dial-label: #D5C8E6;
+  --dial-label-strong: #EBD9FF;
+  --dial-text: #FFFFFF;
+  --dial-text-muted: #D5C8E6;
+}
+
+[data-dial-tone="light"] .today-dial,
+.today-dial[data-dial-tone="light"] {
+  --dial-track: rgba(124, 77, 174, .16);
+  --dial-active: #7C4DAE;
+  --dial-dot-fill: #FFFFFF;
+  --dial-dot-stroke: #B58FE0;
+  --dial-now-fill: #FFFFFF;
+  --dial-now-stroke: #7C4DAE;
+  --dial-label: #6F6280;
+  --dial-label-strong: #7C4DAE;
+  --dial-text: #2B2033;
+  --dial-text-muted: #6F6280;
+}
+
+.today-dial__ring {
+  position: relative;
+  max-width: 360px;
+  margin: 0 auto;
+}
+.today-dial svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.today-dial__track,
+.today-dial__active {
+  fill: none;
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+.today-dial__track { stroke: var(--dial-track); }
+.today-dial__active { stroke: var(--dial-active); }
+
+.today-dial__dot {
+  fill: var(--dial-dot-fill);
+  stroke: var(--dial-dot-stroke);
+  stroke-width: 2;
+}
+.today-dial__dot--subtle { stroke-width: 1.5; }
+.today-dial__dot--edge { stroke: var(--dial-active); }
+.today-dial__dot--current {
+  fill: var(--dial-active);
+  stroke: var(--dial-dot-fill);
+}
+
+.today-dial__label {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--dial-label);
+}
+.today-dial__label--subtle { font-weight: 400; font-size: 11px; opacity: .8; }
+.today-dial__label--current { fill: var(--dial-label-strong); font-weight: 700; opacity: 1; }
+
+.today-dial__now {
+  fill: var(--dial-now-fill);
+  stroke: var(--dial-now-stroke);
+  stroke-width: 3.5;
+}
+
+.today-dial__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+.today-dial__center .section-label { color: var(--dial-text-muted); }
+.today-dial__center strong {
+  font-family: 'Amiri', Georgia, serif;
+  font-weight: 400;
+  font-size: 2.1rem;
+  line-height: 1.15;
+  color: var(--dial-text);
+}
+.today-dial__count,
+.today-dial__at {
+  font-size: .9rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--dial-text-muted);
+}
+.today-dial__count b { color: var(--dial-label-strong); }
+.today-dial__at { font-size: .8rem; }
