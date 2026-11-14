@@ -3,6 +3,9 @@
 export const STATE_VERSION = 1;
 export const MAX_PAGE = 604;
 export const SECTIONS = ['morning', 'evening', 'sleep'];
+
+/** Sections with starred adhkar: the reminder sections plus Home and Travel. */
+export const PIN_SECTIONS = [...SECTIONS, 'home', 'travel'];
 export const THEMES = ['system', 'light', 'dark'];
 // Arabic text size multiplier chosen in Settings.
 export const ARABIC_SCALE = { min: 0.85, max: 1.45, default: 1 };
@@ -31,7 +34,7 @@ export const DEFAULT_STATE = deepFreeze({
     },
   },
   progress: { memorizedUpTo: 0 },
-  pins: { morning: [], evening: [], sleep: [] },
+  pins: { morning: [], evening: [], sleep: [], home: [], travel: [] },
   daily: { dayKey: null, done: {}, counters: {} },
 });
 
@@ -75,7 +78,7 @@ export function migrate(raw) {
       memorizedUpTo: page(obj(src.progress).memorizedUpTo),
     },
     pins: Object.fromEntries(
-      SECTIONS.map((s) => [s, idList(obj(src.pins)[s])]),
+      PIN_SECTIONS.map((s) => [s, idList(obj(src.pins)[s])]),
     ),
     daily: {
       dayKey: typeof daily.dayKey === 'string' && daily.dayKey ? daily.dayKey : null,

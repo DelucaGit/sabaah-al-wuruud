@@ -1,94 +1,22 @@
-/* Adhkar tab: day timeline and section cards. Shared classes come from kit.css. */
+/* Adhkar tab: a column of large buttons. Shared classes come from kit.css. */
 
 /* The screen fades in once on navigation, not on every re-render. */
 .ah { animation: none; }
 
-.ah-anytime { margin-top: 6px; }
-
-/* ---------- timeline ---------- */
-.ah-timeline,
 .ah-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-.ah-timeline { position: relative; padding-left: 26px; }
-.ah-timeline::before {
-  content: '';
-  position: absolute;
-  left: 7px;
-  top: 10px;
-  bottom: 10px;
-  width: 2px;
-  border-radius: 2px;
-  background: var(--color-border);
+  gap: 12px;
 }
 
-/* dot on the line for prayers and section cards */
-.ah-prayer::before,
-.ah-timeline .ah-card::before {
-  content: '';
-  position: absolute;
-  left: -24px;
-  top: 50%;
-  width: 12px;
-  height: 12px;
-  margin-top: -6px;
-  box-sizing: border-box;
-  border-radius: 50%;
-  background: var(--color-bg);
-  border: 2px solid var(--color-lavender);
-}
-
-.ah-prayer {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 4px;
-  color: var(--color-text);
-}
-.ah-prayer span:last-child { font-variant-numeric: tabular-nums; }
-.ah-prayer--past { color: var(--color-muted); }
-.ah-prayer--past::before { background: var(--color-lavender); }
-.ah-prayer--next { font-weight: 700; color: var(--color-primary); }
-
-.ah-now {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--color-primary);
-  font-size: .72rem;
-  font-weight: 700;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-}
-.ah-now::before {
-  content: '';
-  position: absolute;
-  left: -26px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  box-shadow: 0 0 0 5px var(--color-primary-soft);
-}
-.ah-now::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--color-lavender);
-}
-
-/* ---------- cards ---------- */
 .ah-card {
-  position: relative;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   width: 100%;
+  min-height: 72px;
   box-sizing: border-box;
-  padding: 14px 16px;
+  padding: 14px 18px;
   border-radius: var(--radius-md);
   background: var(--color-surface);
   box-shadow: var(--shadow-card);
@@ -101,43 +29,12 @@
 .ah-card:active { transform: scale(.985); }
 .ah-card:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
-.ah-card__text { flex: 1; min-width: 0; }
-.ah-card__text strong {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  font-size: 1.05rem;
-}
-.ah-card__sub { display: block; font-size: .85rem; color: var(--color-muted); }
+.ah-card__title { flex: 1; min-width: 0; font-size: 1.15rem; font-weight: 700; }
 .ah-card__go { flex: none; display: grid; font-size: 1.1rem; color: var(--color-muted); }
 
 .ah-card .ring-wrap > b { display: grid; font-size: 1.1rem; color: var(--color-primary); }
 .ah-card--done .ring__fill { stroke: var(--color-done); }
 .ah-card--done .ring-wrap > b { color: var(--color-done); }
-
-/* The section to read now: gradient card. White on the gradient in every
-   theme (the gradient stays purple in dark mode). */
-.ah-card--active {
-  background: var(--gradient-primary);
-  color: #fff;
-  box-shadow: 0 16px 30px -16px color-mix(in srgb, var(--color-primary) 70%, transparent);
-}
-.ah-card--active .ah-card__sub { color: inherit; opacity: .88; }
-.ah-card--active .ah-card__go,
-.ah-card--active .ring-wrap > b { color: inherit; }
-.ah-card--active .ring__track { stroke: rgba(255, 255, 255, .3); }
-.ah-card--active .ring__fill { stroke: #fff; }
-
-.ah-pill {
-  padding: 2px 9px;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, .24);
-  font-size: .66rem;
-  font-weight: 700;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-}
 
 .ah-badge {
   flex: none;

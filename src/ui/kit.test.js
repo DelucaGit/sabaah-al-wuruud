@@ -66,8 +66,8 @@ describe('ring', () => {
 });
 
 describe('sections', () => {
-  it('describes the three sections with their adhkar', () => {
-    expect(SECTION_KEYS).toEqual(['morning', 'evening', 'sleep']);
+  it('describes the five sections with their adhkar', () => {
+    expect(SECTION_KEYS).toEqual(['morning', 'evening', 'sleep', 'home', 'travel']);
     for (const key of SECTION_KEYS) {
       const s = SECTIONS[key];
       expect(s.key).toBe(key);

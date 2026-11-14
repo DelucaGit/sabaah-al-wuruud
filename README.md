@@ -10,7 +10,7 @@ A personal, ad-free, fully offline Adhkar app for Android — built as a small w
 Four tabs in a bottom bar, all reachable with one thumb:
 
 - **Today**: greeting, date and Hijri date, a prayer dial with the next prayer and countdown, the five prayer times, and the verse with its tafsir
-- **Adhkar**: "Your day" timeline of prayers and the Morning, Evening and Before Sleep sections in day order, the current one highlighted; Istikhara under "Anytime"
+- **Adhkar**: six large buttons: Morning, Evening, Before Sleep, Home (leaving and entering), Travel and Istikhara
 - **Qur'an**: registers a memorized page (count, progress bar, "I memorized page X", undo)
 - **Me**: name, theme, Arabic text size, reminders, memorized page, location, about
 
