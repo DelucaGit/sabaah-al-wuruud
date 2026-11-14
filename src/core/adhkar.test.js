@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { orderAdhkar, togglePin, hasCounter, increment, reset, readTarget, isRead, sectionProgress } from './adhkar.js';
+import { orderAdhkar, togglePin, hasCounter, increment, reset, readTarget, isRead, sectionProgress, headingBreaks } from './adhkar.js';
 
 // Fixtures in the same shape as src/data/adhkar/*.json: { id, arabic, repeat, virtue?, source? }
 const morning = [
@@ -132,5 +132,18 @@ describe('read progress', () => {
 
   it('is never complete for an empty section', () => {
     expect(sectionProgress([], {})).toEqual({ read: 0, total: 0, fraction: 0, all: false });
+  });
+});
+
+describe('headingBreaks', () => {
+  it('shows a heading only where it changes', () => {
+    const list = [{ heading: 'A' }, { heading: 'A' }, { heading: 'B' }];
+    expect(headingBreaks(list)).toEqual(['A', null, 'B']);
+  });
+  it('gives nothing for sections without headings', () => {
+    expect(headingBreaks(morning)).toEqual([null, null, null, null, null]);
+  });
+  it('repeats a heading when starring reorders cards', () => {
+    expect(headingBreaks([{ heading: 'B' }, { heading: 'A' }, { heading: 'B' }])).toEqual(['B', 'A', 'B']);
   });
 });

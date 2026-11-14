@@ -81,3 +81,14 @@ export function sectionProgress(list, counters) {
   const read = list.filter((dhikr) => isRead(dhikr, counters)).length;
   return { read, total, fraction: total ? read / total : 0, all: total > 0 && read === total };
 }
+
+/**
+ * The heading to show above each dhikr in a reader list: the dhikr's own
+ * heading when it differs from the previous card's, otherwise null. Sections
+ * without headings give all nulls.
+ * @param {Array<{heading?: string}>} list
+ * @returns {Array<string | null>}
+ */
+export function headingBreaks(list) {
+  return list.map((d, i) => (d.heading && d.heading !== list[i - 1]?.heading ? d.heading : null));
+}

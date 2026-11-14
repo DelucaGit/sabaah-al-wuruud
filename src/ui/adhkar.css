@@ -119,6 +119,15 @@
   padding: 6px 0;
 }
 .reader-text::-webkit-scrollbar { display: none; }
+.reader-heading {
+  flex: none;
+  margin: 0;
+  padding: 4px 0 0;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
 .reader-text > p { margin: auto 0; padding: 8px 0; }
 .reader-text > .reader-text--short {
   text-align: center;
