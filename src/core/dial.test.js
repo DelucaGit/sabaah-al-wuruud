@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import {
   WINDOW_KEYS, minutesOfDay, angleForMinutes, angleOf, dotAngles, windowArcs,
-  currentWindow, nextWindowStart, timeLeftInWindow, dialGeometry,
+  currentWindow, nextWindowStart, timeLeftInWindow, dialGeometry, nightAngles, NIGHT_KEYS,
 } from './dial.js';
-import { getPrayerTimes } from './prayer.js';
+import { getPrayerTimes, getCurrentNight } from './prayer.js';
 
 const TZ = 'Africa/Cairo'; // UTC+2 in January (no DST)
 // Cairo wall-clock time on 2026-01-15 (day offset allowed) as a Date.
@@ -142,5 +142,58 @@ describe('dialGeometry', () => {
     expect(g.dots.fajr).toBeLessThan(90);
     expect(g.dots.dhuhr).toBeGreaterThan(170);
     expect(g.dots.dhuhr).toBeLessThan(190);
+  });
+});
+
+describe('night events on the ring', () => {
+  const night = (maghrib, fajr) => {
+    const lengthMs = fajr.getTime() - maghrib.getTime();
+    return {
+      maghrib,
+      fajr,
+      lengthMs,
+      middle: new Date(maghrib.getTime() + lengthMs / 2),
+      lastThirdStart: new Date(fajr.getTime() - lengthMs / 3),
+    };
+  };
+
+  it('puts both events at their clock position, in ring order', () => {
+    expect(NIGHT_KEYS).toEqual(['middle', 'lastThird']);
+    // Maghrib 17:20, next Fajr 05:16: middle 23:18, last third from 01:17:20.
+    const a = nightAngles(night(times.maghrib, cairo(5, 16, 0, 16)), TZ);
+    expect(a.middle).toBeCloseTo(((23 + 18 / 60) / 24) * 360);
+    expect(a.lastThird).toBeCloseTo(((1 + 17 / 60 + 20 / 3600) / 24) * 360);
+  });
+
+  it('a middle before midnight is left of the top, one after midnight right of it', () => {
+    const early = nightAngles(night(cairo(17, 0), cairo(5, 0, 0, 16)), TZ); // middle 23:00
+    expect(early.middle).toBe(345);
+    const late = nightAngles(night(cairo(20, 0), cairo(5, 0, 0, 16)), TZ); // middle 00:30
+    expect(late.middle).toBeCloseTo(7.5);
+    const exact = nightAngles(night(cairo(19, 0), cairo(5, 0, 0, 16)), TZ); // middle 00:00
+    expect(exact.middle).toBe(0);
+    // The last third always follows the middle clockwise, by a sixth of the night.
+    for (const a of [early, late, exact]) {
+      expect(((a.lastThird - a.middle) + 360) % 360).toBeGreaterThan(0);
+      expect(((a.lastThird - a.middle) + 360) % 360).toBeLessThan(45);
+    }
+  });
+
+  it('dialGeometry carries the night angles only when a night is given', () => {
+    expect(dialGeometry(times, cairo(15, 30), { timeZone: TZ }).night).toBeNull();
+    const n = night(times.maghrib, cairo(5, 16, 0, 16));
+    const g = dialGeometry(times, cairo(15, 30), { timeZone: TZ, night: n });
+    expect(g.night).toEqual(nightAngles(n, TZ));
+  });
+
+  it('works with the real current night for Cairo (between Isha and Fajr)', () => {
+    const loc = { lat: 30.0444, lng: 31.2357, timeZone: TZ };
+    const now = cairo(13, 0);
+    const real = getPrayerTimes(now, loc);
+    const g = dialGeometry(real, now, { timeZone: TZ, night: getCurrentNight(now, loc) });
+    const unwrap = (a) => (a < 180 ? a + 360 : a); // angles past the top continue upwards
+    expect(unwrap(g.night.middle)).toBeGreaterThan(g.dots.isha);
+    expect(unwrap(g.night.lastThird)).toBeGreaterThan(unwrap(g.night.middle));
+    expect(unwrap(g.night.lastThird)).toBeLessThan(g.dots.fajr + 360);
   });
 });

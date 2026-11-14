@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { getLastThirdOfNight, getMiddleOfNight, getNightTimes, getPrayerTimes, highlightedSection, nextPrayer } from './prayer.js';
+import { getLastThirdOfNight, getMiddleOfNight, getNightTimes, getPrayerTimes, highlightedSection, nextPrayer, getCurrentNight,
+} from './prayer.js';
 
 const CAIRO = { name: 'Cairo', lat: 30.0444, lng: 31.2357 };
 const CAIRO_TZ = { ...CAIRO, timeZone: 'Africa/Cairo' };
@@ -189,5 +190,40 @@ describe('night times', () => {
   it('rolls over a year end (31 Dec -> 1 Jan)', () => {
     const n = check('2026-12-31T10:00:00Z');
     expect(cairoClock(n.fajr).slice(0, 10)).toBe('2027-01-01');
+  });
+});
+
+describe('getCurrentNight', () => {
+  const cairoLoc = { lat: 30.0444, lng: 31.2357, timeZone: 'Africa/Cairo' };
+  // Cairo wall-clock (UTC+2 in November) on 2026-11-14.
+  const at = (h, m = 0) => new Date(Date.UTC(2026, 10, 14, h - 2, m));
+
+  it('before Fajr is the night that began yesterday and ends at today\'s Fajr', () => {
+    const today = getPrayerTimes(at(12), cairoLoc);
+    const yesterdayNight = getNightTimes(new Date(at(12).getTime() - 24 * 3600 * 1000), cairoLoc);
+    for (const now of [at(0, 0), at(0, 1), at(2, 30), new Date(today.fajr.getTime() - 1)]) {
+      const night = getCurrentNight(now, cairoLoc);
+      expect(night).toEqual(yesterdayNight);
+      expect(night.fajr.getTime()).toBe(today.fajr.getTime());
+      expect(night.maghrib.getTime()).toBeLessThan(now.getTime());
+    }
+  });
+
+  it('from Fajr onwards is tonight\'s night, also across midnight\'s eve', () => {
+    const today = getPrayerTimes(at(12), cairoLoc);
+    const tonight = getNightTimes(at(12), cairoLoc);
+    for (const now of [today.fajr, at(10), at(17, 30), at(21), at(23, 59)]) {
+      const night = getCurrentNight(now, cairoLoc);
+      expect(night).toEqual(tonight);
+      expect(night.maghrib.getTime()).toBe(today.maghrib.getTime());
+    }
+  });
+
+  it('switches at Fajr, not at midnight: 23:59 and 00:01 show the same night', () => {
+    const before = getCurrentNight(at(23, 59), cairoLoc);
+    const after = getCurrentNight(new Date(at(23, 59).getTime() + 2 * 60 * 1000), cairoLoc);
+    expect(after).toEqual(before);
+    expect(before.middle.getTime()).toBeLessThan(before.lastThirdStart.getTime());
+    expect(before.lastThirdStart.getTime()).toBeLessThan(before.fajr.getTime());
   });
 });
