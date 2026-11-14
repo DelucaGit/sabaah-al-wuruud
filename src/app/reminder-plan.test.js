@@ -1,15 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { defaultState, migrate } from '../core/state.js';
+import { GOAL_REMINDERS, defaultState, migrate } from '../core/state.js';
+import { addChecklistItem, markHifdhDone, markMurajaaDone, setChecklistDone } from '../core/goals.js';
 import { markDone, setCounter } from '../core/daily.js';
-import { DAYS_AHEAD, planReminders, scheduleKey, tapPath } from './reminder-plan.js';
+import { DAYS_AHEAD, goalStatus, planReminders, scheduleKey, tapPath } from './reminder-plan.js';
 
 // Fake prayer times: Fajr 05:00 and Asr 15:00 device-local on the given day.
 const getTimes = (date) => ({
   fajr: new Date(date.getFullYear(), date.getMonth(), date.getDate(), 5),
   asr: new Date(date.getFullYear(), date.getMonth(), date.getDate(), 15),
+  isha: new Date(date.getFullYear(), date.getMonth(), date.getDate(), 19),
 });
 
 const NOW = new Date(2026, 0, 10, 4, 0); // before every reminder of the day
+
+// The adhkar reminders only (the Quran goal reminders have their own block).
+const adhkarOnly = (list) => list.filter((n) => !GOAL_REMINDERS.includes(n.section));
 
 const getNight = (date) => ({
   lastThirdStart: new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 3),
@@ -19,7 +24,7 @@ describe('last-third reminder', () => {
   it('is off by default and not scheduled', () => {
     const list = planReminders(defaultState(), NOW, { getTimes, getNight });
     expect(list.some((n) => n.section === 'lastThird')).toBe(false);
-    expect(list).toHaveLength(DAYS_AHEAD * 3);
+    expect(adhkarOnly(list)).toHaveLength(DAYS_AHEAD * 3);
   });
 
   it('is scheduled at the last-third start when on', () => {
@@ -48,7 +53,7 @@ describe('last-third reminder', () => {
 
 describe('planReminders', () => {
   it('schedules three reminders a day for DAYS_AHEAD days', () => {
-    const list = planReminders(defaultState(), NOW, { getTimes });
+    const list = adhkarOnly(planReminders(defaultState(), NOW, { getTimes }));
     expect(list).toHaveLength(DAYS_AHEAD * 3);
     expect(list.slice(0, 3).map((n) => [n.section, n.at.getHours()])).toEqual([
       ['morning', 6], ['evening', 16], ['sleep', 22],
@@ -74,14 +79,14 @@ describe('planReminders', () => {
   it('ignores done flags from an earlier day', () => {
     const state = defaultState();
     state.daily = markDone(state.daily, 'morning', new Date(2026, 0, 9, 8));
-    expect(planReminders(state, NOW, { getTimes })).toHaveLength(DAYS_AHEAD * 3);
+    expect(adhkarOnly(planReminders(state, NOW, { getTimes }))).toHaveLength(DAYS_AHEAD * 3);
   });
 
   it('follows the offset and the enabled switch', () => {
     const state = defaultState();
     state.settings.reminders.morning.offsetMin = 30;
     state.settings.reminders.evening.enabled = false;
-    const list = planReminders(state, NOW, { days: 1, getTimes });
+    const list = adhkarOnly(planReminders(state, NOW, { days: 1, getTimes }));
     expect(list.map((n) => n.section)).toEqual(['morning', 'sleep']);
     expect([list[0].at.getHours(), list[0].at.getMinutes()]).toEqual([5, 30]);
   });
@@ -152,5 +157,69 @@ describe('tapPath', () => {
     expect(tapPath(null)).toBeNull();
     expect(tapPath('settings')).toBeNull();
     expect(tapPath(undefined)).toBeNull();
+  });
+});
+
+describe('Quran goal reminders', () => {
+  const goalsOf = (list) => list.filter((n) => GOAL_REMINDERS.includes(n.section));
+  const withItems = () => {
+    let { state, id: a } = addChecklistItem(defaultState(), 'Dua', NOW, () => 'a');
+    ({ state } = addChecklistItem(state, 'Sadaqa', NOW, () => 'b'));
+    return { state, a };
+  };
+
+  it('are on by default after Fajr, Asr and Isha (checklist only once it has items)', () => {
+    expect(goalsOf(planReminders(defaultState(), NOW, { days: 1, getTimes })).map((n) => n.section))
+      .toEqual(['hifdh', 'murajaa']);
+    const list = goalsOf(planReminders(withItems().state, NOW, { days: 1, getTimes }));
+    expect(list.map((n) => [n.section, n.at.getHours(), n.at.getMinutes()])).toEqual([
+      ['hifdh', 5, 30], ['murajaa', 15, 30], ['checklist', 19, 30],
+    ]);
+  });
+
+  it("skip today's entry once that goal is done today", () => {
+    let { state, a } = withItems();
+    state = markHifdhDone(state, NOW);
+    state = markMurajaaDone(state, NOW);
+    state = setChecklistDone(state, a, true, NOW);
+    let today = goalsOf(planReminders(state, NOW, { days: 1, getTimes }));
+    expect(today.map((n) => n.section)).toEqual(['checklist']); // one item still open
+    state = setChecklistDone(state, 'b', true, NOW);
+    today = goalsOf(planReminders(state, NOW, { days: 1, getTimes }));
+    expect(today).toEqual([]);
+    expect(goalsOf(planReminders(state, NOW, { days: 2, getTimes }))).toHaveLength(3);
+  });
+
+  it('ignore goals done on an earlier day', () => {
+    const state = markHifdhDone(defaultState(), new Date(2026, 0, 9, 8));
+    expect(goalStatus(state, NOW).doneToday.hifdh).toBe(false);
+  });
+
+  it('support a fixed time', () => {
+    const state = defaultState();
+    state.settings.reminders.murajaa = { ...state.settings.reminders.murajaa, mode: 'time', time: '17:45' };
+    const m = planReminders(state, NOW, { days: 1, getTimes }).find((n) => n.section === 'murajaa');
+    expect([m.at.getHours(), m.at.getMinutes()]).toEqual([17, 45]);
+  });
+
+  it('change scheduleKey with their settings and done state', () => {
+    const base = scheduleKey(defaultState(), NOW);
+    const edits = [
+      (s) => { s.settings.reminders.hifdh.enabled = false; },
+      (s) => { s.settings.reminders.murajaa.mode = 'time'; },
+      (s) => { s.settings.reminders.checklist.time = '20:00'; },
+      (s) => { s.settings.reminders.hifdh.offsetMin = 10; },
+      (s) => { s.settings.reminders.murajaa.prayer = 'dhuhr'; },
+      (s) => markHifdhDone(s, NOW),
+      (s) => addChecklistItem(s, 'x', NOW).state,
+    ];
+    for (const edit of edits) {
+      const s = defaultState();
+      expect(scheduleKey(edit(s) ?? s, NOW)).not.toBe(base);
+    }
+  });
+
+  it("open the Qur'an tab when tapped", () => {
+    for (const g of GOAL_REMINDERS) expect(tapPath(g)).toBe('/quran');
   });
 });

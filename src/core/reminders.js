@@ -16,11 +16,19 @@ const LAST_THIRD_TITLE = 'Sista tredjedelen';
 const LAST_THIRD_BODY = 'Natten är stilla. En lugn stund för tahajjud och dua.';
 const SLEEP_BODY = 'Shawshat qurban. Glöm inte adhkaar';
 
+// Quran goal reminders: gentle nudges, never guilt.
+const GOAL_TEXT = {
+  hifdh: { title: 'Hifdh', body: 'En stund med dagens sida, när det passar dig.' },
+  murajaa: { title: 'Muraja\'a', body: 'Dags för en lugn repetition av sidorna du bär med dig.' },
+  checklist: { title: 'Dagens lista', body: 'Några små steg kvar på din lista i dag, i din egen takt.' },
+};
+const GOAL_KEYS = Object.keys(GOAL_TEXT);
+
 // Suffix of the deterministic id: yyyymmdd * 10 + SECTION_INDEX[section].
-const SECTION_INDEX = { morning: 1, evening: 2, sleep: 3, lastThird: 4 };
+const SECTION_INDEX = { morning: 1, evening: 2, sleep: 3, lastThird: 4, hifdh: 5, murajaa: 6, checklist: 7 };
 
 // Prayer used when a prayer reminder's settings lack one.
-const DEFAULT_PRAYER = { morning: 'fajr', evening: 'asr' };
+const DEFAULT_PRAYER = { morning: 'fajr', evening: 'asr', hifdh: 'fajr', murajaa: 'asr', checklist: 'isha' };
 
 /** Deterministic notification id for `section` on the local day of `date`. */
 export function reminderId(date, section) {
@@ -47,9 +55,12 @@ function atLocalTime(day, time) {
  * @param {number} [args.days=7]
  * @param {(date: Date) => Record<string, Date>} args.getTimes  Prayer times for the day containing `date`.
  * @param {(date: Date) => {lastThirdStart: Date}} [args.getNight]  Night times after the day containing `date`; needed for the optional last-third reminder.
+ * @param {{doneToday?: {hifdh?: boolean, murajaa?: boolean, checklist?: boolean}, hasChecklist?: boolean}} [args.goals]
+ *   Quran goals: which are already done today (their today entry is skipped)
+ *   and whether the checklist has any items (no items, no checklist reminder).
  * @returns {{id: number, at: Date, title: string, body: string, section: string}[]}
  */
-export function buildSchedule({ now, settings, daily, days = 7, getTimes, getNight }) {
+export function buildSchedule({ now, settings, daily, days = 7, getTimes, getNight, goals = {} }) {
   const reminders = settings?.reminders ?? {};
   const nowMs = now.getTime();
   const out = [];
@@ -90,6 +101,25 @@ export function buildSchedule({ now, settings, daily, days = 7, getTimes, getNig
         body: section === 'sleep' ? SLEEP_BODY : PRAYER_BODY,
         section,
       });
+    }
+
+    for (const goal of GOAL_KEYS) {
+      const cfg = reminders[goal];
+      if (!cfg?.enabled) continue;
+      if (goal === 'checklist' && goals.hasChecklist !== true) continue;
+      if (isToday && goals.doneToday?.[goal] === true) continue;
+
+      let at;
+      if (cfg.mode === 'time') {
+        at = atLocalTime(day, cfg.time);
+      } else {
+        times ??= getTimes(day);
+        const prayerAt = times[cfg.prayer ?? DEFAULT_PRAYER[goal]];
+        at = prayerAt ? new Date(prayerAt.getTime() + (cfg.offsetMin ?? 0) * MS_PER_MINUTE) : null;
+      }
+      if (!at || at.getTime() <= nowMs) continue;
+
+      out.push({ id: reminderId(day, goal), at, ...GOAL_TEXT[goal], section: goal });
     }
   }
 

@@ -16,6 +16,9 @@ describe('DEFAULT_STATE', () => {
           evening: { enabled: true, prayer: 'asr', offsetMin: 60 },
           sleep: { enabled: true, time: '22:00' },
           lastThird: { enabled: false },
+          hifdh: { enabled: true, mode: 'prayer', prayer: 'fajr', offsetMin: 30, time: '06:30' },
+          murajaa: { enabled: true, mode: 'prayer', prayer: 'asr', offsetMin: 30, time: '16:00' },
+          checklist: { enabled: true, mode: 'prayer', prayer: 'isha', offsetMin: 30, time: '21:00' },
         },
       },
       progress: { memorizedUpTo: 0 },
@@ -104,9 +107,29 @@ describe('migrate', () => {
         evening: { enabled: true, prayer: 'maghrib', offsetMin: 0 },
         sleep: { enabled: true, time: '23:30' },
         lastThird: { enabled: false },
+        hifdh: { enabled: false, mode: 'time', prayer: 'dhuhr', offsetMin: -10, time: '07:15' },
+        murajaa: { enabled: true, mode: 'prayer', prayer: 'maghrib', offsetMin: 5, time: '16:00' },
+        checklist: { enabled: true, mode: 'time', prayer: 'isha', offsetMin: 30, time: '20:45' },
       },
     };
     expect(migrate({ settings }).settings).toEqual(settings);
+  });
+
+  it('gives old states the goal reminder defaults and repairs bad goal reminder values', () => {
+    const old = migrate({ settings: { reminders: { morning: { enabled: false } } } });
+    expect(old.settings.reminders.hifdh).toEqual(DEFAULT_STATE.settings.reminders.hifdh);
+    expect(old.settings.reminders.murajaa).toEqual(DEFAULT_STATE.settings.reminders.murajaa);
+    expect(old.settings.reminders.checklist).toEqual(DEFAULT_STATE.settings.reminders.checklist);
+
+    const bad = migrate({
+      settings: { reminders: { hifdh: { enabled: 'no', mode: 'clock', prayer: 'brunch', offsetMin: 9999, time: '24:61' } } },
+    });
+    expect(bad.settings.reminders.hifdh).toEqual(DEFAULT_STATE.settings.reminders.hifdh);
+
+    const partial = migrate({ settings: { reminders: { murajaa: { mode: 'time', time: '17:30' } } } });
+    expect(partial.settings.reminders.murajaa).toEqual({
+      ...DEFAULT_STATE.settings.reminders.murajaa, mode: 'time', time: '17:30',
+    });
   });
 
   it('drops unknown keys at every level', () => {

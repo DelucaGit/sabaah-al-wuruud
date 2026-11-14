@@ -18,6 +18,9 @@ export const METHODS = [
   'Tehran', 'Turkey', 'Other',
 ];
 const MAX_OFFSET_MIN = 12 * 60;
+/** Quran goal reminders (settings.reminders keys) and how each one is timed. */
+export const GOAL_REMINDERS = ['hifdh', 'murajaa', 'checklist'];
+export const GOAL_REMINDER_MODES = ['prayer', 'time'];
 
 export const DEFAULT_STATE = deepFreeze({
   version: STATE_VERSION,
@@ -32,6 +35,11 @@ export const DEFAULT_STATE = deepFreeze({
       evening: { enabled: true, prayer: 'asr', offsetMin: 60 },
       sleep: { enabled: true, time: '22:00' },
       lastThird: { enabled: false },
+      // Quran goal reminders: `mode` 'prayer' uses prayer + offsetMin, 'time'
+      // uses the fixed device-local 'HH:MM' `time`. Skipped once done today.
+      hifdh: { enabled: true, mode: 'prayer', prayer: 'fajr', offsetMin: 30, time: '06:30' },
+      murajaa: { enabled: true, mode: 'prayer', prayer: 'asr', offsetMin: 30, time: '16:00' },
+      checklist: { enabled: true, mode: 'prayer', prayer: 'isha', offsetMin: 30, time: '21:00' },
     },
   },
   progress: { memorizedUpTo: 0 },
@@ -85,6 +93,7 @@ export function migrate(raw) {
             ? reminders.lastThird.enabled
             : d.settings.reminders.lastThird.enabled,
         },
+        ...Object.fromEntries(GOAL_REMINDERS.map((k) => [k, goalReminder(reminders[k], d.settings.reminders[k])])),
       },
     },
     progress: {
@@ -200,6 +209,12 @@ function timeReminder(v, def) {
     enabled: typeof r.enabled === 'boolean' ? r.enabled : def.enabled,
     time: typeof r.time === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(r.time) ? r.time : def.time,
   };
+}
+
+function goalReminder(v, def) {
+  const r = obj(v);
+  const { enabled, prayer, offsetMin } = prayerReminder(r, def);
+  return { enabled, mode: oneOf(r.mode, GOAL_REMINDER_MODES, def.mode), prayer, offsetMin, time: timeReminder(r, def).time };
 }
 
 function idList(v) {
