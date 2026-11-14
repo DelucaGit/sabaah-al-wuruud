@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <title>Round 2 A: soft and organic, cupped dua hands with a rose</title>
+  <!-- Lavender silhouette on white (two tints). Artwork stays inside the central 66% circle (r 338). -->
+  <rect width="1024" height="1024" fill="#FFFFFF"/>
+  <defs>
+    <!-- Right hand seen from slightly above, palm up: x is measured from the centre line of the logo.
+         Little finger at the centre, thumb outside. Fingers are foreshortened because they curl up
+         towards the viewer; the two palms together form the bowl. -->
+    <g id="hand-a">
+      <!-- palm, thumb held close to the index finger, heel of the hand, wrist -->
+      <path fill="#8E64C6" d="M 3,768 L 3,610 L 166,610 L 174,648 C 180,628 189,602 199,584 C 209,566 235,568 239,592
+               C 243,626 235,680 222,718 C 211,752 166,772 132,783 C 121,792 117,806 117,826 L 42,826
+               C 42,806 37,792 24,783 C 12,778 3,776 3,768 Z"/>
+      <!-- fingers: little, ring, middle, index -->
+      <g fill="none" stroke="#8E64C6" stroke-linecap="round">
+        <path stroke-width="36" d="M 22,626 C 22,576 24,556 28,540"/>
+        <path stroke-width="37" d="M 64,626 C 66,566 70,540 77,517"/>
+        <path stroke-width="38" d="M 106,626 C 110,562 117,534 126,510"/>
+        <path stroke-width="37" d="M 148,626 C 154,572 161,550 170,532"/>
+      </g>
+    </g>
+    <g id="leaf-a">
+      <path fill="#8E64C6" d="M 0,0 Q 20,-46 106,-46 Q 62,18 0,0 Z"/>
+      <path fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" d="M 22,-10 Q 50,-30 78,-36"/>
+    </g>
+  </defs>
+
+  <g id="hands">
+    <use href="#hand-a" transform="translate(512,0)"/>
+    <use href="#hand-a" transform="translate(512,0) scale(-1,1)"/>
+    <!-- hollow of the bowl, shared by both palms -->
+    <path fill="#7750B2" d="M 370,680 C 404,650 620,650 654,680 C 672,708 636,748 512,752 C 388,748 352,708 370,680 Z"/>
+    <path fill="none" stroke="#FFFFFF" stroke-width="5" d="M 512,560 L 512,776"/>
+  </g>
+
+  <g id="rose" transform="translate(512,298) scale(1.04)">
+    <!-- stem and leaves -->
+    <path fill="none" stroke="#8E64C6" stroke-width="13" stroke-linecap="round" d="M 0,92 C 8,124 -6,146 0,178"/>
+    <use href="#leaf-a" transform="translate(2,160) rotate(-4) scale(0.84)"/>
+    <use href="#leaf-a" transform="translate(-1,142) rotate(8) scale(-0.74,0.74)"/>
+    <!-- bloom in side view: rolled outer petals, two wrapping petals, bud in the middle -->
+    <g fill="#8E64C6" stroke="#FFFFFF" stroke-width="8" stroke-linejoin="round">
+      <!-- sepals -->
+      <path d="M -40,84 C -22,108 22,108 40,84 C 30,112 14,104 0,126 C -14,104 -30,112 -40,84 Z" stroke="none"/>
+      <!-- outer petals -->
+      <path d="M -6,100 C -64,106 -124,72 -128,6 C -129,-22 -112,-46 -94,-42 C -84,-10 -50,30 -6,100 Z"/>
+      <path d="M 6,100 C 64,106 124,72 128,6 C 129,-22 112,-46 94,-42 C 84,-10 50,30 6,100 Z"/>
+      <!-- bud -->
+      <path d="M -56,-20 C -66,-78 -36,-114 0,-114 C 36,-114 66,-78 56,-20 C 30,0 -30,0 -56,-20 Z"/>
+      <!-- left wrap petal -->
+      <path d="M -74,-70 C -36,-46 8,-14 40,40 C 34,74 14,94 0,98 C -52,84 -98,18 -74,-70 Z"/>
+      <!-- right wrap petal, in front -->
+      <path d="M 74,-70 C 46,-34 2,-6 -30,52 C -22,80 -10,94 0,98 C 52,84 98,18 74,-70 Z"/>
+    </g>
+    <!-- heart of the bud -->
+    <path fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" d="M 6,-62 C -6,-78 -26,-66 -18,-50 C -10,-36 16,-40 22,-58 C 28,-78 8,-94 -14,-90"/>
+  </g>
+</svg>

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <title>Round 2 B: geometric and minimal, cupped dua hands with a rose</title>
+  <!-- Lavender silhouette on white (two tints), built from circles, arcs and straight bars.
+       Artwork stays inside the central 66% circle (r 338). -->
+  <rect width="1024" height="1024" fill="#FFFFFF"/>
+  <defs>
+    <!-- Right hand; x is measured from the centre line. The two palms together are one half disc: the bowl. -->
+    <g id="hand-b" fill="#8E64C6">
+      <!-- palm (quarter disc) and wrist (straight bar) -->
+      <path d="M 4,622 L 176,622 L 176,664 L 236,664 L 236,674 A 120 120 0 0 1 116,794 L 116,826 L 44,826 L 44,794 L 4,772 Z"/>
+      <!-- fingers: little, ring, middle, index: straight bars with round tips, fanned a little -->
+      <rect x="4" y="552" width="38" height="110" rx="19"/>
+      <rect x="47" y="524" width="38" height="138" rx="19" transform="rotate(3 66 662)"/>
+      <rect x="90" y="512" width="38" height="150" rx="19" transform="rotate(6 109 662)"/>
+      <rect x="133" y="530" width="38" height="132" rx="19" transform="rotate(9 152 662)"/>
+      <!-- thumb: one bar beside the index finger -->
+      <rect x="194" y="588" width="42" height="116" rx="21"/>
+    </g>
+    <path id="leaf-b" fill="#8E64C6" d="M 0,0 A 74 74 0 0 1 96,-40 A 74 74 0 0 1 0,0 Z"/>
+  </defs>
+
+  <g id="hands">
+    <use href="#hand-b" transform="translate(512,0)"/>
+    <use href="#hand-b" transform="translate(512,0) scale(-1,1)"/>
+    <!-- hollow of the bowl: half disc -->
+    <path fill="#7750B2" d="M 372,684 L 652,684 A 140 74 0 0 1 372,684 Z"/>
+    <path fill="none" stroke="#FFFFFF" stroke-width="8" d="M 512,540 L 512,790"/>
+  </g>
+
+  <g id="rose" transform="translate(512,296)">
+    <!-- straight stem, two lens-shaped leaves -->
+    <path fill="none" stroke="#8E64C6" stroke-width="14" stroke-linecap="round" d="M 0,96 L 0,186"/>
+    <use href="#leaf-b" transform="translate(4,172) scale(0.8)"/>
+    <use href="#leaf-b" transform="translate(-4,152) scale(-0.8,0.8)"/>
+    <g fill="#8E64C6" stroke="#FFFFFF" stroke-width="9" stroke-linejoin="round">
+      <!-- outer petals: two discs -->
+      <circle cx="-62" cy="22" r="66"/>
+      <circle cx="62" cy="22" r="66"/>
+      <!-- bud: a circle -->
+      <circle cx="0" cy="-52" r="62"/>
+      <!-- two wrapping petals: lenses made of two arcs each, crossing in front -->
+      <path d="M -86,-64 A 150 150 0 0 1 0,100 A 150 150 0 0 1 -86,-64 Z"/>
+      <path d="M 86,-64 A 150 150 0 0 0 0,100 A 150 150 0 0 0 86,-64 Z"/>
+    </g>
+    <!-- sepals: a triangle -->
+    <path fill="#8E64C6" d="M -34,95 L 34,95 L 0,126 Z"/>
+    <!-- heart of the bud: a spiral of three arcs -->
+    <path fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"
+          d="M 2,-62 A 9 9 0 0 1 2,-80 A 18 18 0 0 1 2,-44 A 27 27 0 0 1 -18,-88"/>
+  </g>
+</svg>
