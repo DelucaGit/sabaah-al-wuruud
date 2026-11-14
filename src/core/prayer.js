@@ -94,9 +94,13 @@ export function highlightedSection(now, times) {
  * @returns {{maghrib: Date, fajr: Date, lengthMs: number, middle: Date, lastThirdStart: Date}}
  */
 export function getNightTimes(date, location) {
-  const day = dayAtLocation(date, location);
-  const maghrib = timesForDay(day, location).maghrib;
-  const fajr = timesForDay(day, location, 1).fajr;
+  return nightAfterDay(dayAtLocation(date, location), location);
+}
+
+// The night from Maghrib of `day` (+ `addDays`) to the following Fajr.
+function nightAfterDay(day, location, addDays = 0) {
+  const maghrib = timesForDay(day, location, addDays).maghrib;
+  const fajr = timesForDay(day, location, addDays + 1).fajr;
   const lengthMs = fajr.getTime() - maghrib.getTime();
   return {
     maghrib,
@@ -105,6 +109,24 @@ export function getNightTimes(date, location) {
     middle: new Date(maghrib.getTime() + lengthMs / 2),
     lastThirdStart: new Date(fajr.getTime() - lengthMs / 3),
   };
+}
+
+/**
+ * The night that matters at `now` (same shape as getNightTimes). A night
+ * belongs to the span from Maghrib to the NEXT Fajr, so:
+ *   - before today's Fajr (the small hours) it is the night that began at
+ *     YESTERDAY's Maghrib and ends at today's Fajr: the night we are in;
+ *   - from today's Fajr onwards it is TONIGHT's night (today's Maghrib to
+ *     tomorrow's Fajr): during the day the coming one, after Maghrib the one
+ *     we are in.
+ * "Today" is the calendar day at the location. The switch therefore happens
+ * exactly at Fajr, never at midnight.
+ * @returns {{maghrib: Date, fajr: Date, lengthMs: number, middle: Date, lastThirdStart: Date}}
+ */
+export function getCurrentNight(now, location) {
+  const day = dayAtLocation(now, location);
+  const beforeFajr = now.getTime() < timesForDay(day, location).fajr.getTime();
+  return nightAfterDay(day, location, beforeFajr ? -1 : 0);
 }
 
 /** Middle of the night (Date) after the day containing `date`. */

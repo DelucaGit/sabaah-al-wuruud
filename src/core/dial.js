@@ -73,6 +73,28 @@ export function dotAngles(times, timeZone) {
   return out;
 }
 
+/** The two night events on the ring, in clock order. */
+export const NIGHT_KEYS = Object.freeze(['middle', 'lastThird']);
+
+/**
+ * Angles of the two night events: the middle of the night and the start of
+ * its last third, each at its true local clock position like every other
+ * dot. The middle can fall on either side of the top (just before or just
+ * after local midnight); the angle simply follows the clock.
+ * WHICH night is the caller's choice: the dial shows the night currently
+ * relevant (getCurrentNight in prayer.js: before today's Fajr the night that
+ * started yesterday, otherwise tonight's).
+ * @param {{middle: Date, lastThirdStart: Date}} night  getNightTimes / getCurrentNight
+ * @param {string} [timeZone]
+ * @returns {{middle: number, lastThird: number}}
+ */
+export function nightAngles(night, timeZone) {
+  return {
+    middle: angleOf(night.middle, timeZone),
+    lastThird: angleOf(night.lastThirdStart, timeZone),
+  };
+}
+
 /**
  * Arc of each window, in ring order. `start` is in [0, 360); `end` is the
  * next window's start angle, with 360 added when the arc crosses the top
@@ -141,11 +163,13 @@ export function timeLeftInWindow(times, now, nextFajr) {
  * Everything the dial needs in one call.
  * @param {object} times  getPrayerTimes(now, location)
  * @param {Date} now
- * @param {{timeZone?: string, nextFajr?: Date}} [opts]
+ * @param {{timeZone?: string, nextFajr?: Date, night?: {middle: Date, lastThirdStart: Date}}} [opts]
+ *   `night`: the night whose two events go on the ring (see nightAngles).
  * @returns {{dots: object, arcs: Array<{key: string, start: number, end: number}>,
- *   nowAngle: number, current: string, next: {key: string, time: Date}, msLeft: number}}
+ *   nowAngle: number, current: string, next: {key: string, time: Date}, msLeft: number,
+ *   night: {middle: number, lastThird: number} | null}}
  */
-export function dialGeometry(times, now, { timeZone, nextFajr } = {}) {
+export function dialGeometry(times, now, { timeZone, nextFajr, night } = {}) {
   const next = nextWindowStart(times, now, nextFajr);
   return {
     dots: dotAngles(times, timeZone),
@@ -154,5 +178,6 @@ export function dialGeometry(times, now, { timeZone, nextFajr } = {}) {
     current: currentWindow(times, now),
     next,
     msLeft: next.time.getTime() - now.getTime(),
+    night: night ? nightAngles(night, timeZone) : null,
   };
 }

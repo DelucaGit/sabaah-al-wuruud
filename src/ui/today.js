@@ -1,10 +1,11 @@
 // Today screen: date (Gregorian + Hijri), greeting, a prayer dial with the
-// next prayer and a countdown, all five prayer times, and a reflection verse
+// next prayer and a countdown (the middle of the night and the last third
+// are markers on that ring), all five prayer times, and a reflection verse
 // with its tafsir from the last memorized page.
 import './today.css';
 import './prayer-dial.css';
 import { store } from '../adapters/storage.js';
-import { nextPrayer, getNightTimes } from '../core/prayer.js';
+import { nextPrayer, getNightTimes, getCurrentNight } from '../core/prayer.js';
 import { pickReflectionVerse } from '../core/memorization.js';
 import { timeLeftInWindow } from '../core/dial.js';
 import { navigate } from '../router.js';
@@ -84,19 +85,14 @@ function timesRowHtml(times, next, settings) {
   return `<ul class="today-times" aria-label="Today's prayer times">${items}</ul>`;
 }
 
-/** Middle of the night and the last third, with a tahajjud hint. */
-function nightRowsHtml(now, settings) {
-  let night;
+/** The night whose two events go on the ring, or undefined when unavailable. */
+function currentNightOf(now, loc) {
   try {
-    night = getNightTimes(now, prayerLocation(settings));
+    const night = getCurrentNight(now, loc);
+    return night && !Number.isNaN(night.middle.getTime()) ? night : undefined;
   } catch {
-    return '';
+    return undefined;
   }
-  if (!night || Number.isNaN(night.middle.getTime())) return '';
-  return `<ul class="today-night" aria-label="The night">
-    <li class="today-night__row"><span>Middle of the night</span><b>${esc(formatTime(night.middle, settings))}</b></li>
-    <li class="today-night__row today-night__row--best"><span>Last third<small>Best time for tahajjud and dua</small></span><b>${esc(formatTime(night.lastThirdStart, settings))}</b></li>
-  </ul>`;
 }
 
 /** The Fajr that ends the coming night, or undefined when unavailable. */
@@ -127,7 +123,9 @@ function prayersHtml(settings, now) {
       <a class="today-link" href="#/settings">Change location in Me ${icon('arrow')}</a>
     </section>`;
   }
-  return dialHtml(times, next, now, settings, { timeZone: loc.timeZone, nextFajr: nextFajrOf(now, loc) }) + timesRowHtml(times, next, settings) + nightRowsHtml(now, settings);
+  return dialHtml(times, next, now, settings, {
+    timeZone: loc.timeZone, nextFajr: nextFajrOf(now, loc), night: currentNightOf(now, loc),
+  }) + timesRowHtml(times, next, settings);
 }
 
 const REFLECTION_LABEL = "Today's reflection";
