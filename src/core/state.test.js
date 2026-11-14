@@ -18,7 +18,7 @@ describe('DEFAULT_STATE', () => {
         },
       },
       progress: { memorizedUpTo: 0 },
-      pins: { morning: [], evening: [], sleep: [] },
+      pins: { morning: [], evening: [], sleep: [], home: [], travel: [] },
       daily: { dayKey: null, done: {}, counters: {} },
     });
   });
@@ -111,7 +111,7 @@ describe('migrate', () => {
     expect(state.settings).not.toHaveProperty('extra');
     expect(state.settings.location).toEqual({ name: 'X', lat: 1, lng: 2 });
     expect(state.progress).toEqual({ memorizedUpTo: 3 });
-    expect(Object.keys(state.pins)).toEqual(['morning', 'evening', 'sleep']);
+    expect(Object.keys(state.pins)).toEqual(['morning', 'evening', 'sleep', 'home', 'travel']);
   });
 
   it('preserves the pins and progress of an older state', () => {
@@ -123,7 +123,7 @@ describe('migrate', () => {
     const state = migrate(old);
     expect(state.version).toBe(1);
     expect(state.progress.memorizedUpTo).toBe(42);
-    expect(state.pins).toEqual({ morning: ['m-3', 'm-1'], evening: ['e-7'], sleep: [] });
+    expect(state.pins).toEqual({ morning: ['m-3', 'm-1'], evening: ['e-7'], sleep: [], home: [], travel: [] });
   });
 
   it('cleans pin lists of non-strings and duplicates', () => {

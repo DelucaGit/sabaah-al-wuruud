@@ -11,6 +11,8 @@ describe('resolve', () => {
     ['#/adhkar/morning', 'reader', null, { section: 'morning' }],
     ['#/adhkar/evening', 'reader', null, { section: 'evening' }],
     ['#/adhkar/sleep', 'reader', null, { section: 'sleep' }],
+    ['#/adhkar/home', 'reader', null, { section: 'home' }],
+    ['#/adhkar/travel', 'reader', null, { section: 'travel' }],
     ['#/istikhara', 'istikhara', null, {}],
   ])('%s -> %s', (hash, name, tab, params) => {
     const route = resolve(hash);
