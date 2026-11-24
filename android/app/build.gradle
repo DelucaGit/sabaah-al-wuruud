@@ -8,6 +8,9 @@ if (keystorePropsFile.exists()) {
     keystorePropsFile.withInputStream { keystoreProps.load(it) }
 }
 
+// versionName comes from package.json, the same number Settings shows in the app.
+def appVersion = new groovy.json.JsonSlurper().parse(rootProject.file('../package.json'), 'UTF-8').version
+
 android {
     namespace = "io.github.delucagit.sabaahalwuruud"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -17,8 +20,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         // Raise versionCode by 1 for EVERY build sent to Aisha, or the update
         // will not install over the old app. Never change applicationId.
-        versionCode 3
-        versionName "1.1.1"
+        versionCode 4
+        versionName appVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

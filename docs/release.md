@@ -23,8 +23,9 @@ the app. Never commit the key or the password.
 
 ## Every release
 
-1. In `android/app/build.gradle`, raise `versionCode` by 1 and set `versionName`
-   (for example `1.0.1`). Skip this only for the very first release (1 / "1.0").
+1. In `android/app/build.gradle`, raise `versionCode` by 1. Set the version with
+   `npm version 1.0.1 --no-git-tag-version` (updates `package.json`, which both
+   Settings and the Android `versionName` read).
 2. Build (see `docs/android.md` for the JDK and SDK paths):
    ```
    npm run cap:sync
