@@ -4,6 +4,7 @@
   "webDir": "dist",
   "plugins": {
     "LocalNotifications": {
+      "smallIcon": "ic_stat_rose",
       "iconColor": "#B57EDC"
     }
   }

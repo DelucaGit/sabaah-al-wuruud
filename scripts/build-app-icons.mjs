@@ -1,11 +1,12 @@
-// Builds the app icon and splash artwork from Aisha's own logo (issue #126).
+// Builds the app icon and splash artwork from Aisha's own logo (issues #126, #159, #161).
 //
 //   node scripts/build-app-icons.mjs         -> writes assets/*.png (+ docs/logo-final-check.png)
 //   npx capacitor-assets generate --android  -> writes android/app/src/main/res/**
 //
 // (or simply `npm run assets`, which does both.)
-// Source of truth: assets/logo-source/aisha-logo-flat.webp (artwork on a flat off-white background).
-// The rounded variant in that folder is reference only; Android masks launcher icons itself.
+// Source of truth: assets/logo-source/aisha-logo-v2-rose-hands.jpg (artwork on a near-flat off-white
+// background). The other files in that folder are older logos, kept for reference only.
+// Also writes public/favicon.png and the notification icon android/app/src/main/res/drawable-*/ic_stat_rose.png.
 import { mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,7 +21,7 @@ const SAFE = 0.88;
 const DARK = '#1A1423'; // --color-bg in dark theme
 
 // ---- 1. Read the flat source and cut the artwork out of its background -------------------------
-const { data, info } = await sharp(out('assets/logo-source/aisha-logo-flat.webp'))
+const { data, info } = await sharp(out('assets/logo-source/aisha-logo-v2-rose-hands.jpg'))
   .removeAlpha()
   .raw()
   .toBuffer({ resolveWithObject: true });
@@ -36,10 +37,11 @@ const BG = [med(0), med(1), med(2)];
 const BG_HEX = '#' + BG.map((v) => v.toString(16).padStart(2, '0')).join('');
 console.log('background', BG_HEX);
 
-const dist = (i) => Math.max(Math.abs(data[i] - BG[0]), Math.abs(data[i + 1] - BG[1]), Math.abs(data[i + 2] - BG[2]));
+// Only darker counts: the white halo and the white lines between petals are background too.
+const dist = (i) => Math.max(BG[0] - data[i], BG[1] - data[i + 1], BG[2] - data[i + 2], 0);
 
-// Flood-fill from the border over "background-like" pixels (the faint gradient and the soft shadow
-// under the base count as background). Interior highlights the fill cannot reach stay opaque.
+// Flood-fill from the border over "background-like" pixels (the faint gradient and the white
+// lines between the petals count as background). Interior highlights the fill cannot reach stay opaque.
 const T = 12;
 const outside = new Uint8Array(W * H);
 const stack = [];
@@ -86,7 +88,7 @@ for (let p = 0; p < W * H; p++) {
     let al = 0;
     for (let k = 0; k < 3; k++) {
       const room = BG[k] > 127 ? BG[k] : 255 - BG[k];
-      al = Math.max(al, Math.abs(data[i + k] - BG[k]) / Math.max(room, 1));
+      al = Math.max(al, Math.max(0, BG[k] - data[i + k]) / Math.max(room, 1));
     }
     al = Math.min(1, Math.max(0.0, (al - 0.04) / 0.5)); // ramp, ignores faint noise
     if (al < 1) {
@@ -135,6 +137,44 @@ const tileSvg = Buffer.from(
 const tileWithLogo = await sharp(tileSvg).composite([{ input: await fit(tile, 0.76), gravity: 'centre' }]).png().toBuffer();
 await onCanvas(2732, tileWithLogo, DARK).toFile(out('assets/splash-dark.png'));
 
+// Favicon: transparent artwork, readable on light and dark tabs.
+await onCanvas(64, await fit(64, 0.98)).toFile(out('public/favicon.png'));
+
+// Notification small icon: Android uses alpha only, so a flat white silhouette on transparent.
+// The hairlines between petals vanish at 24px, so the gaps are widened by eroding the cutout;
+// the fine spiral in the middle of the rose is filled in.
+const GAP = 5; // erosion radius in source px
+const solid = new Uint8Array(W * H);
+for (let p = 0; p < W * H; p++) solid[p] = rgba[p * 4 + 3] > 127 && data[p * 3 + 1] < 238 ? 1 : 0;
+const [CX, CY, CR] = [1033, 876, 100];
+for (let y = CY - CR; y < CY + CR; y++)
+  for (let x = CX - CR; x < CX + CR; x++) if ((x - CX) ** 2 + (y - CY) ** 2 < CR * CR) solid[y * W + x] = 1;
+const sil = Buffer.alloc(W * H * 4, 255);
+for (let y = 0; y < H; y++)
+  for (let x = 0; x < W; x++) {
+    let keep = solid[y * W + x];
+    for (let dy = -GAP; keep && dy <= GAP; dy++)
+      for (let dx = -GAP; keep && dx <= GAP; dx++)
+        if (dx * dx + dy * dy <= GAP * GAP && !solid[(y + dy) * W + x + dx]) keep = 0;
+    sil[(y * W + x) * 4 + 3] = keep ? 255 : 0;
+  }
+const silArt = await sharp(sil, { raw: { width: W, height: H, channels: 4 } })
+  .trim({ background: { r: 255, g: 255, b: 255, alpha: 0 }, threshold: 1 }).png().toBuffer();
+const statPngs = [];
+for (const [density, px] of [['mdpi', 24], ['hdpi', 36], ['xhdpi', 48], ['xxhdpi', 72], ['xxxhdpi', 96]]) {
+  const dir = out('android/app/src/main/res', `drawable-${density}`);
+  mkdirSync(dir, { recursive: true });
+  const a = await sharp(silArt)
+    .resize(px, px, { fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 0 } })
+    .extractChannel('alpha').raw().toBuffer();
+  // Pure white everywhere, only alpha varies: no grey fringe.
+  const px4 = Buffer.alloc(px * px * 4, 255);
+  for (let i = 0; i < px * px; i++) px4[i * 4 + 3] = a[i];
+  const png = await sharp(px4, { raw: { width: px, height: px, channels: 4 } }).png().toBuffer();
+  await sharp(png).toFile(join(dir, 'ic_stat_rose.png'));
+  statPngs.push([png, px]);
+}
+
 // Drop the old rose SVG sources; the PNGs above are now the only inputs capacitor-assets reads.
 for (const f of readdirSync(out('assets')).filter((f) => f.endsWith('.svg'))) rmSync(out('assets', f));
 console.log('wrote assets/*.png');
@@ -161,7 +201,16 @@ const items = [
   [lavFg, 10, 320], [darkFg, 320, 320],
   [await sp('splash.png'), 630, 130], [await sp('splash-dark.png'), 840, 130],
 ];
-await sharp({ create: { width: 1060, height: 640, channels: 4, background: '#cccccc' } })
+// Notification icon at every density: native size, then enlarged, on a dark status bar colour.
+let statX = 10;
+for (const [png, px] of statPngs) {
+  const bar = (w, layer) => sharp({ create: { width: w, height: w, channels: 4, background: '#222222' } })
+    .composite([{ input: layer }]).png().toBuffer();
+  items.push([await bar(px, png), statX, 630]);
+  items.push([await bar(192, await sharp(png).resize(192, 192, { kernel: 'nearest' }).png().toBuffer()), statX, 740]);
+  statX += 202;
+}
+await sharp({ create: { width: 1060, height: 942, channels: 4, background: '#cccccc' } })
   .composite(items.map(([input, left, top]) => ({ input, left, top })))
   .png()
   .toFile(out('docs/logo-final-check.png'));
