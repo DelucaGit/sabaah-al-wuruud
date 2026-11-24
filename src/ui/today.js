@@ -1,19 +1,22 @@
 // Today screen: date (Gregorian + Hijri), greeting, a prayer dial with the
 // next prayer and a countdown (the middle of the night and the last third
-// are markers on that ring), all five prayer times, and a reflection verse
-// with its tafsir from the last memorized page.
+// are markers on that ring), the five prayer times plus Shurooq, and a
+// reflection verse with its tafsir from the last memorized page. A button on
+// the card, or pulling the page down, loads another verse from any memorized page.
 import './today.css';
 import './prayer-dial.css';
 import { store } from '../adapters/storage.js';
 import { nextPrayer, getNightTimes, getCurrentNight } from '../core/prayer.js';
-import { pickReflectionVerse } from '../core/memorization.js';
+import { pickReflectionVerse, pickAnotherVerse } from '../core/memorization.js';
 import { timeLeftInWindow } from '../core/dial.js';
+import { tap } from '../adapters/haptics.js';
 import { navigate } from '../router.js';
 import { esc, icon } from './kit.js';
+import { attachPullToRefresh } from './pull-to-refresh.js';
 import { createScene } from './scene.js';
 import { createFigure } from './figure.js';
 import {
-  PRAYER_KEYS, PRAYER_LABELS, prayerLocation, formatTime, todayPrayerTimes,
+  TODAY_TIME_KEYS, PRAYER_LABELS, prayerLocation, formatTime, todayPrayerTimes,
 } from './prayer-view.js';
 import { dialHtml } from './prayer-dial.js';
 
@@ -36,8 +39,8 @@ function loadQuran() {
   return quranPromise;
 }
 
-// The reflection verse is picked once per app open (and again only when the
-// memorized page changes), so it stays the same while moving between tabs.
+// The reflection verse is picked once per app open (and again when the memorized
+// page changes or she asks for another one), so it stays the same while moving between tabs.
 let reflection = null; // { upTo, verse }
 function reflectionFor(progress, pages) {
   if (!reflection || reflection.upTo !== progress.memorizedUpTo) {
@@ -75,12 +78,12 @@ function findNext(settings, now) {
   }
 }
 
-/** All five times in five columns, the next one highlighted. */
+/** The five prayers and Shurooq in six columns, the next prayer highlighted. */
 function timesRowHtml(times, next, settings) {
-  const items = PRAYER_KEYS.map((key) => {
+  const items = TODAY_TIME_KEYS.map((key) => {
     const isNext = key === next.name;
     const time = formatTime(times[key], settings).replace(/\s?(AM|PM)$/i, '');
-    return `<li class="today-times__item${isNext ? ' today-times__item--next' : ''}"${isNext ? ' aria-current="true"' : ''}>${PRAYER_LABELS[key]}<b>${esc(time)}</b></li>`;
+    return `<li class="today-times__item${isNext ? ' today-times__item--next' : ''}${key === 'sunrise' ? ' today-times__item--marker' : ''}"${isNext ? ' aria-current="true"' : ''}>${PRAYER_LABELS[key]}<b>${esc(time)}</b></li>`;
   }).join('');
   return `<ul class="today-times" aria-label="Today's prayer times">${items}</ul>`;
 }
@@ -131,7 +134,7 @@ function prayersHtml(settings, now) {
 const REFLECTION_LABEL = "Today's reflection";
 
 function reflectionShell(label, bodyHtml) {
-  return `<p class="section-label">${esc(label)}</p>${bodyHtml}`;
+  return `<p class="section-label">${esc(label)}</p><div class="today-reflect__body">${bodyHtml}</div>`;
 }
 
 function verseHtml(verse, surahs, tafsir) {
@@ -156,12 +159,16 @@ export function render(view) {
     <p class="today-date"></p>
     <h1 class="today-hello"></h1>
     <div class="today-prayers"></div>
-    <section class="card today-reflect" aria-label="${REFLECTION_LABEL}"></section>
+    <section class="card today-reflect" aria-label="${REFLECTION_LABEL}">
+      <div class="today-reflect__content" aria-live="polite"></div>
+      <button type="button" class="icon-btn icon-btn--ghost today-reflect__again" aria-label="Show another verse" hidden>${icon('reset')}</button>
+    </section>
   </div>`;
   const dateEl = view.querySelector('.today-date');
   const helloEl = view.querySelector('.today-hello');
   const prayersEl = view.querySelector('.today-prayers');
-  const reflectEl = view.querySelector('.today-reflect');
+  const reflectEl = view.querySelector('.today-reflect__content');
+  const againEl = view.querySelector('.today-reflect__again');
   let alive = true;
   const scene = createScene(view.querySelector('.today')); // sky behind the dial
   const figure = createFigure(scene.figureSpot); // walks in once per opening of Today
@@ -188,6 +195,7 @@ export function render(view) {
     const upTo = state.progress.memorizedUpTo;
     if (upTo === shownUpTo) return;
     shownUpTo = upTo;
+    againEl.hidden = true;
     if (upTo === 0) {
       reflectEl.innerHTML = reflectionShell(REFLECTION_LABEL, `
         <p class="muted today-reflect__note">Once you mark a page as memorized, a verse from it will be waiting for you here.</p>
@@ -202,11 +210,36 @@ export function render(view) {
     loadQuran().then(({ pages, surahs, tafsir }) => {
       if (!alive || shownUpTo !== upTo) return;
       reflectEl.innerHTML = verseHtml(reflectionFor(state.progress, pages), surahs, tafsir);
+      againEl.hidden = !reflection.verse;
     }).catch(() => {
       if (!alive || shownUpTo !== upTo) return;
       shownUpTo = null; // try again on the next repaint
       reflectEl.innerHTML = reflectionShell(REFLECTION_LABEL, '<p class="muted today-reflect__note">Could not load the Qur\'an text.</p>');
     });
+  }
+
+  /** Replaces the verse with a different one from the memorized pages. */
+  function showAnotherVerse() {
+    const { progress } = store.get();
+    const upTo = progress.memorizedUpTo;
+    if (upTo === 0 || !reflection || reflection.upTo !== upTo) return; // nothing shown yet
+    loadQuran().then(({ pages, surahs, tafsir }) => {
+      if (!alive || shownUpTo !== upTo) return;
+      reflection = { upTo, verse: pickAnotherVerse(progress, pages, reflection?.verse) };
+      reflectEl.innerHTML = verseHtml(reflection.verse, surahs, tafsir);
+      againEl.hidden = !reflection.verse;
+      againEl.classList.remove('is-turning');
+      void againEl.offsetWidth; // restart the turn on quick taps
+      againEl.classList.add('is-turning');
+    }).catch(() => {}); // keep the current verse
+  }
+
+  /** Pull to refresh: prayer times, dial and scene for now, and another verse. */
+  function refresh() {
+    const state = store.get();
+    paintTop(state);
+    paintReflection(state); // retries when the Qur'an text failed to load
+    showAnotherVerse();
   }
 
   function paintAll() {
@@ -215,6 +248,12 @@ export function render(view) {
     paintReflection(state);
   }
 
+  againEl.addEventListener('click', () => {
+    tap();
+    showAnotherVerse();
+  });
+  const detachPull = attachPullToRefresh(view, refresh);
+
   paintAll();
   const unsubscribe = store.subscribe(() => { if (alive) paintAll(); });
   // Keep the dial, the countdown and the highlighted prayer current.
@@ -222,6 +261,7 @@ export function render(view) {
 
   return () => {
     alive = false;
+    detachPull();
     unsubscribe();
     clearInterval(timer);
     clearTimeout(windowTimer);

@@ -46,3 +46,17 @@ export function pickReflectionVerse(progress, pages, rng = Math.random) {
   const { s, a, text } = ayahs[index];
   return { s, a, text, page };
 }
+
+/**
+ * Another random ayah `{ s, a, text, page }` from all memorized pages (1 to
+ * memorizedUpTo), different from `current` unless it is the only one. null
+ * when nothing is memorized.
+ */
+export function pickAnotherVerse(progress, pages, currentVerse, rng = Math.random) {
+  const all = (pages ?? []).slice(0, current(progress)).flatMap((ayahs, i) =>
+    (ayahs ?? []).map(({ s, a, text }) => ({ s, a, text, page: i + 1 })));
+  const others = all.filter((v) => !currentVerse || v.s !== currentVerse.s || v.a !== currentVerse.a);
+  const from = others.length > 0 ? others : all;
+  if (from.length === 0) return null;
+  return from[Math.min(from.length - 1, Math.floor(rng() * from.length))];
+}

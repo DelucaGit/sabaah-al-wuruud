@@ -33,14 +33,14 @@
   gap: 12px;
 }
 
-/* ---------- five prayer times ---------- */
+/* ---------- five prayer times + Shurooq ---------- */
 .today-times {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 4px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 2px;
 }
 .today-times__item {
   text-align: center;
@@ -63,6 +63,9 @@
 }
 .today-times__item--next b { color: var(--color-primary); font-weight: 700; }
 
+/* Shurooq is a time marker, not a prayer: lighter than the rest. */
+.today-times__item--marker, .today-times__item--marker b { color: var(--color-muted); font-style: italic; }
+
 /* ---------- prayer times unavailable ---------- */
 .today-note {
   padding: 18px 20px;
@@ -82,7 +85,13 @@
 }
 
 /* ---------- reflection ---------- */
-.today-reflect { padding: 20px; }
+.today-reflect { position: relative; padding: 20px; }
+.today-reflect .section-label { padding-right: 40px; } /* room for the button */
+.today-reflect__again { position: absolute; top: 6px; right: 6px; }
+.today-reflect__again.is-turning .icon { animation: today-again-turn .5s ease; }
+@keyframes today-again-turn { to { transform: rotate(-360deg); } }
+.today-reflect__body { animation: today-verse-in .35s ease; }
+@keyframes today-verse-in { from { opacity: 0; } }
 .today-reflect__note { margin-top: 8px; }
 .today-reflect__cta { margin-top: 14px; gap: 8px; }
 .today-reflect .today-reflect__ayah {
