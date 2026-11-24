@@ -20,7 +20,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         // Raise versionCode by 1 for EVERY build sent to Aisha, or the update
         // will not install over the old app. Never change applicationId.
-        versionCode 4
+        versionCode 5
         versionName appVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {

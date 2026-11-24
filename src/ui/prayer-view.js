@@ -6,9 +6,12 @@ import { getPrayerTimes } from '../core/prayer.js';
 /** The five daily prayers, in order (no sunrise). */
 export const PRAYER_KEYS = Object.freeze(['fajr', 'dhuhr', 'asr', 'maghrib', 'isha']);
 
+/** The Today times row: the five prayers plus Shurooq, which is not a prayer. */
+export const TODAY_TIME_KEYS = Object.freeze(['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha']);
+
 /** English display names. Includes `sunrise` for callers that show it. */
 export const PRAYER_LABELS = Object.freeze({
-  fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha',
+  fajr: 'Fajr', sunrise: 'Shurooq', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha',
 });
 
 /**

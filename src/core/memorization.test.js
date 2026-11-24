@@ -5,6 +5,7 @@ import {
   setMemorizedUpTo,
   nextPageLabel,
   pickReflectionVerse,
+  pickAnotherVerse,
 } from './memorization.js';
 
 // Small fixture in the shape of pages.json: pages[0] is page 1.
@@ -113,5 +114,38 @@ describe('pickReflectionVerse', () => {
       [0, 0.25, 0.5, 0.75].map((r) => pickReflectionVerse(progress, pages, () => r).a),
     );
     expect([...seen].sort()).toEqual([1, 2, 3, 4]);
+  });
+});
+
+describe('pickAnotherVerse', () => {
+  const rolls = [0, 0.1, 0.25, 0.5, 0.75, 0.999];
+
+  it('never returns the current verse when there are others', () => {
+    const now = { s: 2, a: 3 };
+    for (const r of rolls) {
+      const v = pickAnotherVerse({ memorizedUpTo: 2 }, pages, now, () => r);
+      expect(v).not.toMatchObject(now);
+    }
+  });
+
+  it('reaches every other verse on all memorized pages, and nothing beyond', () => {
+    const seen = new Set();
+    for (let i = 0; i < 100; i += 1) {
+      const v = pickAnotherVerse({ memorizedUpTo: 2 }, pages, { s: 2, a: 3 }, () => i / 100);
+      seen.add(`${v.page}:${v.s}:${v.a}`);
+    }
+    expect([...seen].sort()).toEqual(['1:1:1', '1:1:2', '2:2:1', '2:2:2', '2:2:4']);
+  });
+
+  it('returns the same verse when it is the only one', () => {
+    const one = [[{ s: 1, a: 1, text: 'only' }]];
+    for (const r of rolls) {
+      expect(pickAnotherVerse({ memorizedUpTo: 1 }, one, { s: 1, a: 1 }, () => r))
+        .toEqual({ s: 1, a: 1, text: 'only', page: 1 });
+    }
+  });
+
+  it('is null when nothing is memorized', () => {
+    expect(pickAnotherVerse({ memorizedUpTo: 0 }, pages, null, () => 0)).toBeNull();
   });
 });
